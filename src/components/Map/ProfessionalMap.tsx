@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Map, { NavigationControl } from 'react-map-gl/maplibre';
 import { useAppStore } from '../../store/useAppStore';
 import { getTileSource } from '../../api/dataService';
@@ -14,19 +14,37 @@ const FILTER_STYLES: Record<string, any> = {
 
 export const ProfessionalMap: React.FC = () => {
   const { center, zoom, setCenter, setZoom, activeLayer, filterMode, filterIntensity } = useAppStore();
+  const [mapLoaded, setMapLoaded] = useState(false);
   const tileUrl = getTileSource(activeLayer);
-  const paintProps = FILTER_STYLES[filterMode] || FILTER_STYLES.none;
-
-  const handleMove = useCallback((evt: any) => {
-    setCenter([evt.target.getCenter().lat, evt.target.getCenter().lng]);
-    setZoom(Math.round(evt.target.getZoom()));
-  }, [setCenter, setZoom]);
-
+  
+  const paintProps = useMemo(() => FILTER_STYLES[filterMode] || FILTER_STYLES.none, [filterMode]);
+  
   const style = useMemo(() => ({
     version: 8,
-    sources: { base: { type: 'raster', tiles: [tileUrl], tileSize: 256 } },
-    layers: [{ id: 'layer', type: 'raster', source: 'base', paint: { ...paintProps, 'raster-opacity': 0.85 + filterIntensity * 0.15 } }]
+    sources: { 
+      base: { 
+        type: 'raster', 
+        tiles: [tileUrl], 
+        tileSize: 256,
+        maxzoom: 19
+      } 
+    },
+    layers: [{ 
+      id: 'layer', 
+      type: 'raster', 
+      source: 'base', 
+      paint: { 
+        ...paintProps, 
+        'raster-opacity': 0.85 + filterIntensity * 0.15 
+      } 
+    }]
   }), [tileUrl, paintProps, filterIntensity]);
+
+  const handleMove = useCallback((evt: any) => {
+    const lngLat = evt.target.getCenter();
+    setCenter([lngLat.lat, lngLat.lng]);
+    setZoom(Math.round(evt.target.getZoom()));
+  }, [setCenter, setZoom]);
 
   return (
     <div className="map-wrapper">
@@ -37,9 +55,17 @@ export const ProfessionalMap: React.FC = () => {
         onMove={handleMove}
         mapStyle={style as any}
         attributionControl={false}
+        onLoad={() => setMapLoaded(true)}
       >
         <NavigationControl position="top-right" style={{ background: 'var(--glass)', border: '1px solid var(--border)', borderRadius: 8 }} />
-        <div className="map-coords">🌍 {center[0].toFixed(4)}° N, {center[1].toFixed(4)}° E | 🔍 Zoom {zoom}</div>
+        <div className="map-coords">
+          🌍 {center[0].toFixed(4)}° N, {center[1].toFixed(4)}° E | 🔍 Zoom {zoom} | 🛰️ {activeLayer}
+        </div>
+        {!mapLoaded && (
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'var(--text-secondary)' }}>
+            ⏳ Caricamento mappa...
+          </div>
+        )}
       </Map>
     </div>
   );

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import type { LayerID, FilterMode } from '../../types';
 
@@ -21,9 +21,17 @@ const FILTERS: { id: FilterMode; label: string; icon: string }[] = [
 export const ControlPanel: React.FC = () => {
   const { activeLayer, setLayer, filterMode, setFilter, filterIntensity, setFilterIntensity, toggleUI, uiExpanded } = useAppStore();
 
+  if (!uiExpanded) {
+    return (
+      <div className="panel collapsed">
+        <button className="toggle-btn" onClick={toggleUI}>▶️</button>
+      </div>
+    );
+  }
+
   return (
-    <div className={`panel ${uiExpanded ? 'expanded' : 'collapsed'}`}>
-      <button className="toggle-btn" onClick={toggleUI}>{uiExpanded ? '◀️' : '▶️'}</button>
+    <div className="panel expanded">
+      <button className="toggle-btn" onClick={toggleUI}>◀️</button>
       <h3>🎛️ Controlli</h3>
       
       <div className="section">

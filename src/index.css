@@ -398,7 +398,7 @@ small, .text-sm { font-size: 0.875rem; color: var(--text-muted); }
   display: flex;
   gap: 1rem;
   padding: 1rem;
-  height: calc(100vh - 140px);
+  height: calc(100vh - 220px);
 }
 .map-wrapper {
   flex: 1;
@@ -406,6 +406,8 @@ small, .text-sm { font-size: 0.875rem; color: var(--text-muted); }
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border);
+  position: relative;
+  min-height: 600px;
 }
 .map-coords {
   position: absolute;
@@ -591,41 +593,58 @@ small, .text-sm { font-size: 0.875rem; color: var(--text-muted); }
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
+  z-index: 50;
 }
 .time-slider .time-label {
   font-size: 0.875rem;
   color: var(--text-secondary);
-  min-width: 120px;
+  min-width: 140px;
+  font-weight: 500;
 }
 .time-slider input[type="range"] {
   flex: 1;
-  height: 6px;
-  border-radius: 3px;
+  height: 8px;
+  border-radius: 4px;
   background: var(--bg-tertiary);
   outline: none;
   -webkit-appearance: none;
+  cursor: pointer;
 }
 .time-slider input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--text-accent);
   cursor: pointer;
   transition: var(--transition);
+  box-shadow: 0 2px 6px rgba(56, 189, 248, 0.4);
+}
+.time-slider input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 10px rgba(56, 189, 248, 0.6);
 }
 .time-slider .play-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  padding: 0.5rem 0.75rem;
+  background: var(--text-accent);
+  border: none;
+  color: #000;
+  padding: 0.6rem 1rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition);
   font-size: 1rem;
+  font-weight: 600;
+  min-width: 100px;
 }
-.time-slider .play-btn:hover { border-color: var(--text-accent); color: var(--text-accent); }
+.time-slider .play-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
+}
+.time-slider .play-btn:active {
+  transform: translateY(0);
+}
 
 /* Responsive */
 @media (max-width: 1024px) {

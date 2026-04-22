@@ -1,40 +1,48 @@
-﻿import React, { useState, useCallback } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { ProfessionalMap } from '../components/Map/ProfessionalMap';
 import { ControlPanel } from '../components/UI/ControlPanel';
 import { TimeSlider } from '../components/UI/TimeSlider';
 import { AnalyticsPanel } from '../components/Dashboard/AnalyticsPanel';
 import { useAuthStore } from '../store/useAuthStore';
 
-// Definizione dei tipi per i layer disponibili
-export type LayerType = 'clouds' | 'rain' | 'wind' | 'temp' | 'pressure';
-
 export const Dashboard: React.FC = () => {
   const { user } = useAuthStore();
   
-  // Stato per gestire quali layer meteo sono attivi
-  const [activeLayers, setActiveLayers] = useState<LayerType[]>([]);
-  
-  // Stato per la timeline (usato per sincronizzare animazioni e filtri)
-  const [currentTime, setCurrentTime] = useState<number>(Date.now());
+  // Stato condiviso
+  const [activeLayers, setActiveLayers] = useState<string[]>([]);
+  const [spectralFilter, setSpectralFilter] = useState<string>('none');
+  const [timeIndex, setTimeIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-  // Funzione per attivare/disattivare un layer
-  const toggleLayer = useCallback((layer: LayerType) => {
-    setActiveLayers(prev => 
-      prev.includes(layer) 
-        ? prev.filter(l => l !== layer) 
-        : [...prev, layer]
-    );
-  }, []);
-
-  // Funzione per impostare un layer specifico (usato dalla timeline)
-  const setLayer = useCallback((layer: LayerType | null) => {
-    if (!layer) {
-      setActiveLayers([]);
-    } else {
-      setActiveLayers([layer]);
+  // Logica Timeline
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setTimeIndex(prev => (prev >= 23 ? 0 : prev + 1)); // Ciclo 24 ore
+      }, 800);
     }
-  }, []);
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+
+  // Handler per cambiare filtro quando cambia il tempo (opzionale, o manuale)
+  useEffect(() => {
+    // Esempio: cambio automatico filtro basato sull'ora simulata
+    if (timeIndex >= 6 && timeIndex < 12) setSpectralFilter('ndvi');
+    else if (timeIndex >= 12 && timeIndex < 18) setSpectralFilter('thermal');
+    else setSpectralFilter('none');
+  }, [timeIndex]);
+
+  const toggleLayer = (layer: string) => {
+    setActiveLayers(prev => 
+      prev.includes(layer) ? prev.filter(l => l !== layer) : [...prev, layer]
+    );
+  };
+
+  const setFilter = (filter: string) => {
+    setSpectralFilter(filter);
+    setIsPlaying(false); // Ferma timeline se cambio filtro manualmente
+  };
 
   return (
     <div className="dashboard-wrapper">
@@ -44,29 +52,31 @@ export const Dashboard: React.FC = () => {
       </div>
       
       <div className="map-layout">
-        {/* Passiamo activeLayers e le funzioni di controllo alla mappa */}
+        {/* Passiamo lo stato alla mappa */}
         <ProfessionalMap 
-          activeLayers={activeLayers}
-          onLayerChange={setLayer}
+          activeLayers={activeLayers} 
+          spectralFilter={spectralFilter}
+          timeIndex={timeIndex}
         />
         
         <aside className="side-panels">
-          {/* Passiamo lo stato e le funzioni al pannello di controllo */}
+          {/* Passiamo handler e stato ai controlli */}
           <ControlPanel 
             activeLayers={activeLayers}
+            spectralFilter={spectralFilter}
             onToggleLayer={toggleLayer}
+            onSetFilter={setFilter}
           />
-          <AnalyticsPanel />
+          <AnalyticsPanel timeIndex={timeIndex} />
         </aside>
       </div>
 
-      {/* Passiamo le funzioni di controllo tempo e layer al time slider */}
+      {/* Passiamo handler alla timeline */}
       <TimeSlider 
-        currentTime={currentTime}
-        isPlaying={isPlaying}
-        onTimeChange={setCurrentTime}
-        onPlayPause={() => setIsPlaying(!isPlaying)}
-        onLayerChange={setLayer}
+        currentIndex={timeIndex} 
+        isPlaying={isPlaying} 
+        onSlide={setTimeIndex} 
+        onTogglePlay={() => setIsPlaying(!isPlaying)} 
       />
     </div>
   );

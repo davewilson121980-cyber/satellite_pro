@@ -1,71 +1,51 @@
-import React, { useEffect, useRef } from 'react';
-import { useAppStore } from '../../store/useAppStore';
-import type { FilterMode } from '../../types';
+import React from 'react';
 
-export const TimeSlider: React.FC = () => {
-  const { timeOffset, setTimeOffset, isPlaying, togglePlay, setFilter } = useAppStore();
-  const intervalRef = useRef<number | null>(null);
-  
-  useEffect(() => {
-    if (isPlaying) {
-      intervalRef.current = window.setInterval(() => {
-        const newOffset = timeOffset > -7 ? timeOffset - 1 : 0;
-        setTimeOffset(newOffset);
-        // Cambia il filtro in base al timeOffset
-        const filters: FilterMode[] = ['none', 'uv', 'ir', 'ndvi', 'thermal'];
-        const index = Math.abs(newOffset) % filters.length;
-        setFilter(filters[index]);
-      }, 800);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    }
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isPlaying, timeOffset, setTimeOffset, setFilter]);
+interface TimeSliderProps {
+  currentIndex: number;
+  isPlaying: boolean;
+  onSlide: (index: number) => void;
+  onTogglePlay: () => void;
+}
 
-  const handlePlay = () => {
-    togglePlay();
-  };
-
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTimeOffset(parseInt(e.target.value));
-  };
-
-  // Calcola il colore del filtro in base al timeOffset
-  const getFilterColorForTime = (offset: number) => {
-    const filters = ['#94a3b8', '#3b82f6', '#ef4444', '#22c55e', '#f97316'];
-    const index = Math.abs(offset) % filters.length;
-    return filters[index];
-  };
-
-  const currentColor = getFilterColorForTime(timeOffset);
+export const TimeSlider: React.FC<TimeSliderProps> = ({
+  currentIndex,
+  isPlaying,
+  onSlide,
+  onTogglePlay
+}) => {
+  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
-    <div className="time-slider">
-      <span className="time-label" style={{ color: currentColor }}>
-        {timeOffset === 0 ? '📅 Oggi' : `⏪ ${Math.abs(timeOffset)} giorni fa`}
-      </span>
-      <input 
-        type="range" 
-        min="-7" 
-        max="0" 
-        step="1" 
-        value={timeOffset} 
-        onChange={handleTimeChange}
-        style={{
-          background: `linear-gradient(to right, ${currentColor} 0%, ${currentColor} ${((timeOffset + 7) / 7) * 100}%, var(--bg-tertiary) ${((timeOffset + 7) / 7) * 100}%, var(--bg-tertiary) 100%)`
-        }}
+    <div className="time-slider-container glass p-4 fixed bottom-0 left-0 right-0 z-50">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-white font-mono text-lg">
+          Ore: {currentIndex.toString().padStart(2, '0')}:00
+        </span>
+        <button
+          onClick={onTogglePlay}
+          className={`px-4 py-1 rounded-full font-bold ${
+            isPlaying ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+          } text-white transition-colors`}
+        >
+          {isPlaying ? '⏸ Pausa' : '▶ Play'}
+        </button>
+      </div>
+      
+      <input
+        type="range"
+        min="0"
+        max="23"
+        step="1"
+        value={currentIndex}
+        onChange={(e) => onSlide(parseInt(e.target.value))}
+        className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
       />
-      <button onClick={handlePlay} className="play-btn">
-        {isPlaying ? '⏸️ Pausa' : '▶️ Play'}
-      </button>
+      
+      <div className="flex justify-between mt-1 text-xs text-gray-400 font-mono">
+        {hours.filter((_, i) => i % 4 === 0).map(h => (
+          <span key={h}>{h}:00</span>
+        ))}
+      </div>
     </div>
   );
 };

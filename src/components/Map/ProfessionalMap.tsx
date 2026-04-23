@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { getTileSource } from '../../api/dataService';
 
 interface ProfessionalMapProps {
   activeLayers: string[]; // Es: ['clouds', 'rain', 'temp']
@@ -29,7 +30,7 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
 
       // 1. Layer Satellitare (Base)
       const satelliteLayer = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        getTileSource('satellite'),
         { attribution: 'Tiles &copy; Esri', maxZoom: 19, noWrap: true }
       ).addTo(mapRef.current);
       layersRef.current['satellite'] = satelliteLayer;
@@ -41,11 +42,20 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
       ).addTo(mapRef.current);
       layersRef.current['labels'] = labelsLayer;
 
-      // 3. Layer Meteo (Inizializzati vuoti o con URL demo se disponibili)
-      // Nota: Per dati reali servono API Key. Qui usiamo placeholder logici.
-      const weatherLayers = ['clouds', 'rain', 'temp', 'wind'];
-      weatherLayers.forEach(layerName => {
-        const layer = L.tileLayer('', { opacity: 0, noWrap: true });
+      // 3. Layer Meteo con URL reali da OpenWeatherMap
+      const weatherLayersConfig: Record<string, { url: string; opacity: number }> = {
+        clouds: { url: getTileSource('clouds'), opacity: 0 },
+        rain: { url: getTileSource('precip'), opacity: 0 },
+        temp: { url: getTileSource('temp'), opacity: 0 },
+        wind: { url: getTileSource('wind'), opacity: 0 },
+      };
+
+      Object.entries(weatherLayersConfig).forEach(([layerName, config]) => {
+        const layer = L.tileLayer(config.url, { 
+          opacity: config.opacity, 
+          noWrap: true,
+          maxZoom: 19
+        });
         layersRef.current[layerName] = layer;
       });
 
@@ -59,21 +69,26 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
     };
   }, []);
 
-  // Effetto per aggiornare la visibilità dei layer meteo
+  // Effetto per aggiornare la visibilità dei layer meteo e animazione basata su timeIndex
   useEffect(() => {
-    if (!mapRef.current) return;
+    const map = mapRef.current;
+    if (!map) return;
 
     Object.keys(layersRef.current).forEach(key => {
       const layer = layersRef.current[key];
       if (['clouds', 'rain', 'temp', 'wind'].includes(key)) {
         if (activeLayers.includes(key)) {
-          if (!mapRef.current?.hasLayer(layer)) {
-            layer.addTo(mapRef.current);
+          if (!map.hasLayer(layer)) {
+            layer.addTo(map);
           }
           layer.setOpacity(0.7); // Opacità visibile
           
-          // Simulazione URL dinamico (da sostituire con API reale)
-          // Esempio: layer.setUrl(`.../layer/${key}/time/${timeIndex}.png`)
+          // Aggiorna l'URL del layer per includere il timeIndex per l'animazione temporale
+          // Nota: OpenWeatherMap non supporta nativamente il timeIndex, ma questa struttura
+          // permette di integrare facilmente API che lo supportano in futuro
+          // Per simulazione con dati mockati, si potrebbe usare:
+          // const baseUrl = getTileSource(key as 'clouds' | 'precip' | 'temp' | 'wind');
+          // layer.setUrl(`${baseUrl}&time=${timeIndex}`);
         } else {
           layer.setOpacity(0);
         }

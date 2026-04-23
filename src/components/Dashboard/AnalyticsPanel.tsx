@@ -5,10 +5,22 @@ import type { EnvDataPoint } from '../../types';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area, BarChart, Bar } from 'recharts';
 import { saveAs } from 'file-saver';
 
-export const AnalyticsPanel: React.FC = () => {
+interface AnalyticsPanelProps {
+  timeIndex: number;
+}
+
+export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => {
   const { center } = useAppStore();
   const [data, setData] = useState<EnvDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Utilizza timeIndex per simulare dati meteo in tempo reale
+  // Il parametro è disponibile per future implementazioni di animazione temporale
+  useEffect(() => {
+    // Qui si potrebbe integrare la logica per aggiornare i dati in base al timeIndex
+    // Per ora viene usato solo come placeholder per l'interfaccia
+    console.log('TimeIndex aggiornato:', timeIndex);
+  }, [timeIndex]);
 
   useEffect(() => {
     let cancelled = false;

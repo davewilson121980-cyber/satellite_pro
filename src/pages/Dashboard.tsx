@@ -16,7 +16,7 @@ export const Dashboard: React.FC = () => {
 
   // Logica Timeline
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isPlaying) {
       interval = setInterval(() => {
         setTimeIndex(prev => (prev >= 23 ? 0 : prev + 1)); // Ciclo 24 ore

@@ -4,10 +4,10 @@ import type { EnvDataPoint, LayerID } from '../types';
 export const getTileSource = (layer: LayerID): string => {
   const sources: Record<LayerID, string> = {
     satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    clouds: 'https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=demo',
-    temp: 'https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=demo',
-    wind: 'https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=demo',
-    precip: 'https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=demo'
+    clouds: 'https://tile.openweathermap.org/map/clouds_new/{z}/{y}/{x}.png?appid=demo',
+    temp: 'https://tile.openweathermap.org/map/temp_new/{z}/{y}/{x}.png?appid=demo',
+    wind: 'https://tile.openweathermap.org/map/wind_new/{z}/{y}/{x}.png?appid=demo',
+    precip: 'https://tile.openweathermap.org/map/precipitation_new/{z}/{y}/{x}.png?appid=demo'
   };
   return sources[layer];
 };

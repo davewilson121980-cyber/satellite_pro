@@ -2,21 +2,6 @@
 # Dependencies
 node_modules/
 
-# Build artifacts
-build/
-dist/
-*.tsbuildinfo
-
-# Logs and temp files
-*.log
-*.tmp
-
-# Editors
-.vscode/
-.idea/
-
-# Environment
-.env
-.env.local
-.env.*
+# Vite build artifacts
+node_modules/.vite/
 ```

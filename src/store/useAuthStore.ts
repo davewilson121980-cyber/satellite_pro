@@ -29,7 +29,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   login: (email: string, pass: string) => Promise<boolean>;
-  register: ( RegisterData) => Promise<{ success: boolean; message: string }>;
+  register: (data: RegisterData) => Promise<{ success: boolean; message: string }>;
   verifyEmail: (token: string, email: string) => Promise<boolean>;
   resendVerification: (email: string) => Promise<boolean>;
   logout: () => void;

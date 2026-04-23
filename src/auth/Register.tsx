@@ -1,7 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore, type RegisterData } from '../store/useAuthStore';
-import { Eye, EyeOff, Loader2, Mail, Lock, User, Building2, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Mail, Lock, User, Building2 } from 'lucide-react';
 
 export const Register: React.FC = () => {
   const [formData, setFormData] = useState<RegisterData>({
@@ -13,7 +13,7 @@ export const Register: React.FC = () => {
   const [message, setMessage] = useState('');
   
   const { register, isLoading, error } = useAuthStore();
-  const navigate = useNavigate();
+  useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;

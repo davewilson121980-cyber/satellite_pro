@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { Check, Zap, Crown, ArrowRight } from 'lucide-react';
 
 export const PricingSection: React.FC = () => {
-  const { user, upgradeTier, isAuthenticated } = useAuthStore();
+  const { upgradeTier, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubscribe = (tier: 'pro' | 'enterprise') => {

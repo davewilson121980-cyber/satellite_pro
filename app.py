@@ -7,20 +7,13 @@ and registers all blueprints for authentication, dashboard, pricing, and API.
 
 import os
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-# Import configuration
+# Import configuration and extensions
 from config import config
-
-
-# Initialize extensions (will be bound to app in create_app)
-db = SQLAlchemy()
-login_manager = LoginManager()
-migrate = Migrate()
+from extensions import db, login_manager, migrate
 
 
 def create_app(config_name=None):

@@ -1,7 +1,73 @@
-2026-04-26 21:11:27,406 INFO sqlalchemy.engine.Engine BEGIN (implicit)
-2026-04-26 21:11:27,406 INFO sqlalchemy.engine.Engine COMMIT
+2026-04-26 21:44:12,329 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-04-26 21:44:12,330 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("users")
+2026-04-26 21:44:12,330 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-04-26 21:44:12,330 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("users")
+2026-04-26 21:44:12,330 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-04-26 21:44:12,331 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("data_logs")
+2026-04-26 21:44:12,331 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-04-26 21:44:12,331 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("data_logs")
+2026-04-26 21:44:12,331 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-04-26 21:44:12,332 INFO sqlalchemy.engine.Engine 
+CREATE TABLE users (
+	id INTEGER NOT NULL, 
+	username VARCHAR(80) NOT NULL, 
+	email VARCHAR(120) NOT NULL, 
+	password_hash VARCHAR(256) NOT NULL, 
+	created_at DATETIME, 
+	is_active BOOLEAN, 
+	subscription_plan VARCHAR(20), 
+	subscription_start DATETIME, 
+	subscription_end DATETIME, 
+	queries_today INTEGER, 
+	last_query_date DATE, 
+	PRIMARY KEY (id)
+)
+
+
+2026-04-26 21:44:12,332 INFO sqlalchemy.engine.Engine [no key 0.00008s] ()
+2026-04-26 21:44:12,332 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_users_email ON users (email)
+2026-04-26 21:44:12,332 INFO sqlalchemy.engine.Engine [no key 0.00009s] ()
+2026-04-26 21:44:12,333 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_users_username ON users (username)
+2026-04-26 21:44:12,333 INFO sqlalchemy.engine.Engine [no key 0.00007s] ()
+2026-04-26 21:44:12,333 INFO sqlalchemy.engine.Engine 
+CREATE TABLE data_logs (
+	id INTEGER NOT NULL, 
+	user_id INTEGER NOT NULL, 
+	timestamp DATETIME, 
+	latitude FLOAT NOT NULL, 
+	longitude FLOAT NOT NULL, 
+	parameter_type VARCHAR(50), 
+	date_requested DATE, 
+	date_range_start DATE, 
+	date_range_end DATE, 
+	api_source VARCHAR(50), 
+	status_code INTEGER, 
+	response_size INTEGER, 
+	cache_key VARCHAR(100), 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(user_id) REFERENCES users (id)
+)
+
+
+2026-04-26 21:44:12,333 INFO sqlalchemy.engine.Engine [no key 0.00006s] ()
+2026-04-26 21:44:12,334 INFO sqlalchemy.engine.Engine CREATE INDEX ix_data_logs_user_id ON data_logs (user_id)
+2026-04-26 21:44:12,334 INFO sqlalchemy.engine.Engine [no key 0.00005s] ()
+2026-04-26 21:44:12,334 INFO sqlalchemy.engine.Engine CREATE INDEX ix_data_logs_timestamp ON data_logs (timestamp)
+2026-04-26 21:44:12,334 INFO sqlalchemy.engine.Engine [no key 0.00005s] ()
+2026-04-26 21:44:12,334 INFO sqlalchemy.engine.Engine CREATE INDEX ix_data_logs_cache_key ON data_logs (cache_key)
+2026-04-26 21:44:12,334 INFO sqlalchemy.engine.Engine [no key 0.00006s] ()
+2026-04-26 21:44:12,335 INFO sqlalchemy.engine.Engine COMMIT
  * Serving Flask app 'app.py'
- * Debug mode: off
+ * Debug mode: on
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http://127.0.0.1:5002
+ * Running on http://127.0.0.1:5003
 Press CTRL+C to quit
+ * Restarting with stat
+2026-04-26 21:44:13,535 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-04-26 21:44:13,535 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("users")
+2026-04-26 21:44:13,535 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-04-26 21:44:13,546 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("data_logs")
+2026-04-26 21:44:13,546 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-04-26 21:44:13,546 INFO sqlalchemy.engine.Engine COMMIT
+ * Debugger is active!
+ * Debugger PIN: 717-809-639

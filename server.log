@@ -1,0 +1,7 @@
+2026-04-26 21:11:27,406 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-04-26 21:11:27,406 INFO sqlalchemy.engine.Engine COMMIT
+ * Serving Flask app 'app.py'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5002
+Press CTRL+C to quit

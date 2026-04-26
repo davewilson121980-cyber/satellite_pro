@@ -66,6 +66,17 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => 
     aqi: d.aqi 
   })), [data]);
 
+  // Filtri attivi per i grafici
+  const [activeCharts, setActiveCharts] = useState<{temp: boolean; ndvi: boolean; aqi: boolean}>({
+    temp: true,
+    ndvi: true,
+    aqi: true
+  });
+
+  const toggleChart = (chart: keyof typeof activeCharts) => {
+    setActiveCharts(prev => ({ ...prev, [chart]: !prev[chart] }));
+  };
+
   const getAQIColor = (aqi: number) => {
     if (aqi < 50) return '#22c55e';
     if (aqi < 100) return '#84cc16';
@@ -87,6 +98,62 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => 
         <h3>📊 Dati Ambientali</h3>
         <button onClick={exportCSV} disabled={loading}>📥 Esporta</button>
       </div>
+      
+      {/* Filtri colorati per i grafici */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+        <button
+          onClick={() => toggleChart('temp')}
+          style={{
+            flex: 1,
+            padding: '0.5rem',
+            borderRadius: '6px',
+            border: `2px solid ${activeCharts.temp ? '#38bdf8' : '#334155'}`,
+            background: activeCharts.temp ? 'rgba(56, 189, 248, 0.15)' : 'var(--bg-tertiary)',
+            color: activeCharts.temp ? '#38bdf8' : '#64748b',
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          {activeCharts.temp ? '✓ Temperatura' : '○ Temperatura'}
+        </button>
+        <button
+          onClick={() => toggleChart('ndvi')}
+          style={{
+            flex: 1,
+            padding: '0.5rem',
+            borderRadius: '6px',
+            border: `2px solid ${activeCharts.ndvi ? '#22c55e' : '#334155'}`,
+            background: activeCharts.ndvi ? 'rgba(34, 197, 94, 0.15)' : 'var(--bg-tertiary)',
+            color: activeCharts.ndvi ? '#22c55e' : '#64748b',
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          {activeCharts.ndvi ? '✓ NDVI' : '○ NDVI'}
+        </button>
+        <button
+          onClick={() => toggleChart('aqi')}
+          style={{
+            flex: 1,
+            padding: '0.5rem',
+            borderRadius: '6px',
+            border: `2px solid ${activeCharts.aqi ? getAQIColor(stats?.aqiAvg || 50) : '#334155'}`,
+            background: activeCharts.aqi ? 'rgba(239, 68, 68, 0.15)' : 'var(--bg-tertiary)',
+            color: activeCharts.aqi ? getAQIColor(stats?.aqiAvg || 50) : '#64748b',
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          {activeCharts.aqi ? '✓ AQI' : '○ AQI'}
+        </button>
+      </div>
+      
       {loading ? <div className="loader">⏳ Caricamento...</div> : (
         <>
           <div className="metrics">
@@ -132,7 +199,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => 
           )}
 
           <div className="chart-wrap">
-            <ResponsiveContainer width="100%" height={140}>
+            <ResponsiveContainer width="100%" height={120}>
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
@@ -147,13 +214,15 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => 
                   contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 8, fontSize: '0.75rem' }}
                   labelStyle={{ color: '#94a3b8', marginBottom: '0.25rem' }}
                 />
-                <Area type="monotone" dataKey="temp" stroke="#38bdf8" strokeWidth={2} fill="url(#tempGradient)" name="Temperatura" />
+                {activeCharts.temp && (
+                  <Area type="monotone" dataKey="temp" stroke="#38bdf8" strokeWidth={2} fill="url(#tempGradient)" name="Temperatura" />
+                )}
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
           <div className="chart-wrap" style={{ marginTop: '0.5rem' }}>
-            <ResponsiveContainer width="100%" height={120}>
+            <ResponsiveContainer width="100%" height={100}>
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                 <XAxis dataKey="time" stroke="#94a3b8" fontSize={10} tickLine={false} />
@@ -161,13 +230,15 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => 
                 <Tooltip 
                   contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 8, fontSize: '0.75rem' }}
                 />
-                <Bar dataKey="ndvi" fill="#22c55e" radius={[4, 4, 0, 0]} name="NDVI %" />
+                {activeCharts.ndvi && (
+                  <Bar dataKey="ndvi" fill="#22c55e" radius={[4, 4, 0, 0]} name="NDVI %" />
+                )}
               </BarChart>
             </ResponsiveContainer>
           </div>
 
           <div className="chart-wrap" style={{ marginTop: '0.5rem' }}>
-            <ResponsiveContainer width="100%" height={100}>
+            <ResponsiveContainer width="100%" height={80}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                 <XAxis dataKey="time" stroke="#94a3b8" fontSize={10} tickLine={false} />
@@ -175,7 +246,9 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => 
                 <Tooltip 
                   contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 8, fontSize: '0.75rem' }}
                 />
-                <Line type="monotone" dataKey="aqi" stroke={getAQIColor(stats?.aqiAvg || 50)} strokeWidth={2} dot={false} name="AQI" />
+                {activeCharts.aqi && (
+                  <Line type="monotone" dataKey="aqi" stroke={getAQIColor(stats?.aqiAvg || 50)} strokeWidth={2} dot={false} name="AQI" />
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>

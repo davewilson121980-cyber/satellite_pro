@@ -1,0 +1,133 @@
+/* Custom styles for Satellite Analytics Web App */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Map container styles */
+#map {
+    z-index: 1;
+}
+
+.leaflet-container {
+    background: #0f172a;
+}
+
+/* Chart containers */
+canvas {
+    max-height: 300px;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Gradient text utility */
+.gradient-text {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15);
+}
+
+/* Button pulse animation for CTAs */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.btn-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Sidebar transitions */
+aside {
+    transition: all 0.3s ease;
+}
+
+/* Form input focus states */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #3b82f6;
+}
+
+/* Table row hover */
+tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+/* Badge styles */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+    .sidebar-collapsed {
+        transform: translateX(-100%);
+    }
+    
+    #map {
+        height: 400px !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    aside,
+    nav,
+    footer,
+    button {
+        display: none !important;
+    }
+    
+    main {
+        padding: 0 !important;
+    }
+}

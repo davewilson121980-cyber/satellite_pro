@@ -5,8 +5,7 @@ API routes - Endpoints for data fetching and analysis.
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
-from app import db
-from models import DataLog
+from models import DataLog, db
 from services import DataFetcher, calculate_solar_power, calculate_wind_power
 from config import Config
 

@@ -5,8 +5,7 @@ Pricing routes - Subscription plans and payment processing.
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
-from models import User
-from app import db
+from models import User, db
 from config import Config
 
 pricing_bp = Blueprint('pricing', __name__, template_folder='../templates')

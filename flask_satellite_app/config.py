@@ -118,9 +118,13 @@ class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = False
     
-    # Force PostgreSQL in production
-    if Config.DATABASE_URL.startswith('sqlite'):
-        raise ValueError("SQLite not supported in production. Use PostgreSQL.")
+    # Force PostgreSQL in production (validation moved to __init__ to avoid import-time error)
+    @property
+    def database_url(self):
+        url = super().DATABASE_URL
+        if url.startswith('sqlite'):
+            raise ValueError("SQLite not supported in production. Use PostgreSQL.")
+        return url
 
 
 class TestingConfig(Config):

@@ -35,13 +35,17 @@
         /* Custom map layer control styles */
         .layer-filter {
             transition: all 0.3s ease;
+            border: 1px solid transparent;
         }
         .layer-filter.active {
             opacity: 1;
-            transform: scale(1.05);
+            transform: scale(1.02);
+            background-color: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
         }
         .layer-filter.inactive {
-            opacity: 0.4;
+            opacity: 0.5;
+            filter: grayscale(0.5);
         }
         /* Chart container heights */
         .chart-container {
@@ -98,29 +102,29 @@
         <div class="p-4 border-b border-dark-border">
             <h3 class="text-sm font-medium text-gray-400 mb-3">Data Layers</h3>
             <div class="space-y-2">
-                <label class="flex items-center space-x-3 cursor-pointer layer-filter active" id="filter-weather">
+                <label class="flex items-center space-x-3 cursor-pointer layer-filter active p-2 rounded-lg hover:bg-dark-bg transition-colors" id="filter-weather">
                     <input type="checkbox" id="layer-weather" checked onchange="toggleLayer('weather')" 
-                           class="w-4 h-4 text-primary-600 bg-dark-bg border-dark-border rounded focus:ring-primary-500">
-                    <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
-                    <span class="text-sm text-gray-300">Weather Data</span>
+                           class="w-4 h-4 text-blue-600 bg-dark-bg border-dark-border rounded focus:ring-blue-500">
+                    <span class="w-4 h-4 bg-blue-500 rounded-full shadow-lg shadow-blue-500/50"></span>
+                    <span class="text-sm text-gray-300 font-medium">Weather Data</span>
                 </label>
-                <label class="flex items-center space-x-3 cursor-pointer layer-filter active" id="filter-solar">
+                <label class="flex items-center space-x-3 cursor-pointer layer-filter inactive p-2 rounded-lg hover:bg-dark-bg transition-colors" id="filter-solar">
                     <input type="checkbox" id="layer-solar" onchange="toggleLayer('solar')" 
-                           class="w-4 h-4 text-primary-600 bg-dark-bg border-dark-border rounded focus:ring-primary-500">
-                    <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
-                    <span class="text-sm text-gray-300">Solar Energy</span>
+                           class="w-4 h-4 text-yellow-600 bg-dark-bg border-dark-border rounded focus:ring-yellow-500">
+                    <span class="w-4 h-4 bg-yellow-500 rounded-full shadow-lg shadow-yellow-500/50"></span>
+                    <span class="text-sm text-gray-300 font-medium">Solar Energy</span>
                 </label>
-                <label class="flex items-center space-x-3 cursor-pointer layer-filter active" id="filter-wind">
+                <label class="flex items-center space-x-3 cursor-pointer layer-filter inactive p-2 rounded-lg hover:bg-dark-bg transition-colors" id="filter-wind">
                     <input type="checkbox" id="layer-wind" onchange="toggleLayer('wind')" 
-                           class="w-4 h-4 text-primary-600 bg-dark-bg border-dark-border rounded focus:ring-primary-500">
-                    <span class="w-3 h-3 bg-cyan-500 rounded-full"></span>
-                    <span class="text-sm text-gray-300">Wind Energy</span>
+                           class="w-4 h-4 text-cyan-600 bg-dark-bg border-dark-border rounded focus:ring-cyan-500">
+                    <span class="w-4 h-4 bg-cyan-500 rounded-full shadow-lg shadow-cyan-500/50"></span>
+                    <span class="text-sm text-gray-300 font-medium">Wind Energy</span>
                 </label>
-                <label class="flex items-center space-x-3 cursor-pointer layer-filter active" id="filter-ndvi">
+                <label class="flex items-center space-x-3 cursor-pointer layer-filter inactive p-2 rounded-lg hover:bg-dark-bg transition-colors" id="filter-ndvi">
                     <input type="checkbox" id="layer-ndvi" onchange="toggleLayer('ndvi')" 
-                           class="w-4 h-4 text-primary-600 bg-dark-bg border-dark-border rounded focus:ring-primary-500">
-                    <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                    <span class="text-sm text-gray-300">NDVI (Vegetation)</span>
+                           class="w-4 h-4 text-green-600 bg-dark-bg border-dark-border rounded focus:ring-green-500">
+                    <span class="w-4 h-4 bg-green-500 rounded-full shadow-lg shadow-green-500/50"></span>
+                    <span class="text-sm text-gray-300 font-medium">NDVI (Vegetation)</span>
                 </label>
             </div>
         </div>
@@ -295,9 +299,15 @@
         // Initialize map
         const map = L.map('map').setView([41.9028, 12.4964], 6);
         
-        // Add dark matter tile layer
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        // Add satellite tile layer with labels (Esri World Imagery + Esri World Boundaries)
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Add labels layer for place names
+        const labelsLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.png', {
+            attribution: 'Map labels by Stamen Design',
             subdomains: 'abcd',
             maxZoom: 19
         }).addTo(map);
@@ -338,13 +348,13 @@
             const filter = document.getElementById(`filter-${layerName}`);
             
             if (checkbox.checked) {
-                filter.classList.add('active');
                 filter.classList.remove('inactive');
-                console.log(`Layer ${layerName} activated`);
+                filter.classList.add('active');
+                console.log(`✓ Layer ${layerName} activated`);
             } else {
-                filter.classList.add('inactive');
                 filter.classList.remove('active');
-                console.log(`Layer ${layerName} deactivated`);
+                filter.classList.add('inactive');
+                console.log(`✗ Layer ${layerName} deactivated`);
             }
         }
         

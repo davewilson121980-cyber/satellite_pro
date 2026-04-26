@@ -1,0 +1,14 @@
+2026-04-26 21:05:05,195 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-04-26 21:05:05,195 INFO sqlalchemy.engine.Engine COMMIT
+ * Serving Flask app 'app.py'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://21.0.5.152:5000
+Press CTRL+C to quit
+127.0.0.1 - - [26/Apr/2026 21:05:11] "GET / HTTP/1.1" 302 -
+127.0.0.1 - - [26/Apr/2026 21:05:13] "GET /auth/login HTTP/1.1" 200 -
+127.0.0.1 - - [26/Apr/2026 21:05:16] "GET /pricing HTTP/1.1" 308 -
+127.0.0.1 - - [26/Apr/2026 21:05:19] "GET /pricing/ HTTP/1.1" 200 -
+127.0.0.1 - - [26/Apr/2026 21:05:21] "GET /api/weather?lat=41.9028 HTTP/1.1" 302 -

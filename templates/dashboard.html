@@ -52,6 +52,11 @@
             position: relative;
             height: 280px;
         }
+        /* Color-coded layer indicators */
+        .layer-indicator-weather { background-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+        .layer-indicator-solar { background-color: #eab308; box-shadow: 0 0 12px rgba(234, 179, 8, 0.5); }
+        .layer-indicator-wind { background-color: #06b6d4; box-shadow: 0 0 12px rgba(6, 182, 212, 0.5); }
+        .layer-indicator-ndvi { background-color: #22c55e; box-shadow: 0 0 12px rgba(34, 197, 94, 0.5); }
     </style>
 </head>
 <body class="bg-dark-bg text-gray-100 h-screen flex overflow-hidden">
@@ -105,25 +110,25 @@
                 <label class="flex items-center space-x-3 cursor-pointer layer-filter active p-2 rounded-lg hover:bg-dark-bg transition-colors" id="filter-weather">
                     <input type="checkbox" id="layer-weather" checked onchange="toggleLayer('weather')" 
                            class="w-4 h-4 text-blue-600 bg-dark-bg border-dark-border rounded focus:ring-blue-500">
-                    <span class="w-4 h-4 bg-blue-500 rounded-full shadow-lg shadow-blue-500/50"></span>
+                    <span class="w-4 h-4 layer-indicator-weather rounded-full"></span>
                     <span class="text-sm text-gray-300 font-medium">Weather Data</span>
                 </label>
                 <label class="flex items-center space-x-3 cursor-pointer layer-filter inactive p-2 rounded-lg hover:bg-dark-bg transition-colors" id="filter-solar">
                     <input type="checkbox" id="layer-solar" onchange="toggleLayer('solar')" 
                            class="w-4 h-4 text-yellow-600 bg-dark-bg border-dark-border rounded focus:ring-yellow-500">
-                    <span class="w-4 h-4 bg-yellow-500 rounded-full shadow-lg shadow-yellow-500/50"></span>
+                    <span class="w-4 h-4 layer-indicator-solar rounded-full"></span>
                     <span class="text-sm text-gray-300 font-medium">Solar Energy</span>
                 </label>
                 <label class="flex items-center space-x-3 cursor-pointer layer-filter inactive p-2 rounded-lg hover:bg-dark-bg transition-colors" id="filter-wind">
                     <input type="checkbox" id="layer-wind" onchange="toggleLayer('wind')" 
                            class="w-4 h-4 text-cyan-600 bg-dark-bg border-dark-border rounded focus:ring-cyan-500">
-                    <span class="w-4 h-4 bg-cyan-500 rounded-full shadow-lg shadow-cyan-500/50"></span>
+                    <span class="w-4 h-4 layer-indicator-wind rounded-full"></span>
                     <span class="text-sm text-gray-300 font-medium">Wind Energy</span>
                 </label>
                 <label class="flex items-center space-x-3 cursor-pointer layer-filter inactive p-2 rounded-lg hover:bg-dark-bg transition-colors" id="filter-ndvi">
                     <input type="checkbox" id="layer-ndvi" onchange="toggleLayer('ndvi')" 
                            class="w-4 h-4 text-green-600 bg-dark-bg border-dark-border rounded focus:ring-green-500">
-                    <span class="w-4 h-4 bg-green-500 rounded-full shadow-lg shadow-green-500/50"></span>
+                    <span class="w-4 h-4 layer-indicator-ndvi rounded-full"></span>
                     <span class="text-sm text-gray-300 font-medium">NDVI (Vegetation)</span>
                 </label>
             </div>
@@ -299,16 +304,15 @@
         // Initialize map
         const map = L.map('map').setView([41.9028, 12.4964], 6);
         
-        // Add satellite tile layer with labels (Esri World Imagery + Esri World Boundaries)
+        // Add satellite tile layer with labels (Esri World Imagery + Esri World Boundaries for place names)
         const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
             maxZoom: 19
         }).addTo(map);
         
-        // Add labels layer for place names
-        const labelsLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.png', {
-            attribution: 'Map labels by Stamen Design',
-            subdomains: 'abcd',
+        // Add labels layer for place names (Esri World Boundaries - more reliable than Stamen)
+        const labelsLayer = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Labels &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
             maxZoom: 19
         }).addTo(map);
         
@@ -357,6 +361,23 @@
                 console.log(`✗ Layer ${layerName} deactivated`);
             }
         }
+        
+        // Initialize layer states on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            ['weather', 'solar', 'wind', 'ndvi'].forEach(layer => {
+                const checkbox = document.getElementById(`layer-${layer}`);
+                const filter = document.getElementById(`filter-${layer}`);
+                if (checkbox && filter) {
+                    if (checkbox.checked) {
+                        filter.classList.remove('inactive');
+                        filter.classList.add('active');
+                    } else {
+                        filter.classList.remove('active');
+                        filter.classList.add('inactive');
+                    }
+                }
+            });
+        });
         
         // Fetch data from API (placeholder)
         async function fetchData() {

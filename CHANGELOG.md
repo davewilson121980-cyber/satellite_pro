@@ -189,3 +189,45 @@ flask_satellite_app/
 - I filtri dei grafici mantengono lo stato durante la sessione corrente
 - Transizioni fluide (0.2s ease) per migliorare l'esperienza utente
 
+---
+
+## [2025-01-15 15:45] - Filtri Colorati Mappa e Satellite Layer con Logout Funzionante
+
+### FEAT - Nuove funzionalità
+- **Mappa Satellitare con Immagini Reali**: Sostituito layer CartoDB Dark Matter con Esri World Imagery
+  - Tile layer satellitare ad alta risoluzione da ArcGIS Online
+  - Layer aggiuntivo Esri World Boundaries and Places per nomi geografici
+  - Visualizzazione realistica del territorio con foto satellitari vere
+  - Nomi di città, paesi e luoghi visibili sulla mappa
+  
+- **Filtri Colorati per Data Layers**: Implementati indicatori colorati funzionanti per i layer
+  - Weather Data (blu #3b82f6) - indicatore luminoso con glow effect
+  - Solar Energy (giallo #eab308) - indicatore luminoso con glow effect
+  - Wind Energy (ciano #06b6d4) - indicatore luminoso con glow effect
+  - NDVI Vegetation (verde #22c55e) - indicatore luminoso con glow effect
+  - Feedback visivo immediato: layer attivi in evidenza, inattivi semi-trasparenti e in scala di grigi
+  - Transizioni fluide (0.3s ease) con effetto hover e scaling
+  
+- **Logout Funzionante**: Pulsante logout completamente operativo
+  - Conferma dialog prima del logout
+  - Pulizia localStorage e sessionStorage
+  - Redirect a `/login` tramite rotta backend esistente
+  - Messaggio flash di conferma dopo logout
+
+### REFACTOR - Refactoring
+- **dashboard.html**:
+  - Aggiunte classi CSS dedicate per indicatori colorati (`layer-indicator-weather`, `layer-indicator-solar`, etc.)
+  - Sostituiti indicatori statici con classi dinamiche riutilizzabili
+  - Implementata funzione `DOMContentLoaded` per inizializzare correttamente stati layer
+  - Migliorata gestione toggle layer con feedback visivo coerente
+  - Aggiornato tile layer labels da Stamen Toner a Esri World Boundaries (più affidabile)
+
+### File Coinvolti
+- `/workspace/templates/dashboard.html`
+
+### Note Tecniche
+- Mappa Leaflet.js con tile server Esri ArcGIS Online
+- Gli indicatori usano box-shadow per creare effetto glow/colorato
+- Il sistema di filtri mantiene compatibilità con checkbox HTML standard
+- Logout integrato con Flask-Login esistente
+

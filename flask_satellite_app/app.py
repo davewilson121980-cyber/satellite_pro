@@ -17,7 +17,7 @@ from datetime import datetime
 from config import config
 
 
-# Initialize extensions
+# Initialize extensions (will be bound to app in create_app)
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
@@ -49,6 +49,9 @@ def create_app(config_name=None):
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'info'
     
+    # Import models BEFORE registering blueprints to avoid circular imports
+    from models import User, DataLog
+    
     # Register blueprints
     from routes.auth import auth_bp
     from routes.dashboard import dashboard_bp
@@ -59,9 +62,6 @@ def create_app(config_name=None):
     app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
     app.register_blueprint(pricing_bp, url_prefix='/pricing')
     app.register_blueprint(api_bp, url_prefix='/api')
-    
-    # Import models to ensure they're registered with SQLAlchemy
-    from models import User, DataLog
     
     # Create tables within app context
     with app.app_context():

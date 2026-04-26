@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Satellite Analytics</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe',
+                            300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6',
+                            600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a',
+                        },
+                        dark: { bg: '#0f172a', card: '#1e293b', border: '#334155' }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-dark-bg text-gray-100 h-screen flex overflow-hidden">
+    
+    <!-- Sidebar -->
+    <aside class="w-80 bg-dark-card border-r border-dark-border flex flex-col overflow-y-auto">
+        <!-- Sidebar header -->
+        <div class="p-4 border-b border-dark-border">
+            <h2 class="text-lg font-semibold text-white">Analysis Controls</h2>
+        </div>
+        
+        <!-- Location selector -->
+        <div class="p-4 border-b border-dark-border">
+            <h3 class="text-sm font-medium text-gray-400 mb-3">Location</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Latitude</label>
+                    <input type="number" id="latitude" value="41.9028" step="0.0001" 
+                           class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg text-sm focus:outline-none focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Longitude</label>
+                    <input type="number" id="longitude" value="12.4964" step="0.0001" 
+                           class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg text-sm focus:outline-none focus:border-primary-500">
+                </div>
+                <button onclick="updateMapFromInputs()" class="w-full px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm rounded-lg transition-colors">
+                    Update Map
+                </button>
+            </div>
+        </div>
+        
+        <!-- Date range -->
+        <div class="p-4 border-b border-dark-border">
+            <h3 class="text-sm font-medium text-gray-400 mb-3">Date Range</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Start Date</label>
+                    <input type="date" id="start-date" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg text-sm focus:outline-none focus:border-primary-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">End Date</label>
+                    <input type="date" id="end-date" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg text-sm focus:outline-none focus:border-primary-500">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data layers -->
+        <div class="p-4 border-b border-dark-border">
+            <h3 class="text-sm font-medium text-gray-400 mb-3">Data Layers</h3>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="layer-weather" checked onchange="toggleLayer('weather')" 
+                           class="w-4 h-4 text-primary-600 bg-dark-bg border-dark-border rounded focus:ring-primary-500">
+                    <span class="text-sm text-gray-300">Weather Data</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="layer-solar" onchange="toggleLayer('solar')" 
+                           class="w-4 h-4 text-primary-600 bg-dark-bg border-dark-border rounded focus:ring-primary-500">
+                    <span class="text-sm text-gray-300">Solar Energy</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="layer-wind" onchange="toggleLayer('wind')" 
+                           class="w-4 h-4 text-primary-600 bg-dark-bg border-dark-border rounded focus:ring-primary-500">
+                    <span class="text-sm text-gray-300">Wind Energy</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="layer-ndvi" onchange="toggleLayer('ndvi')" 
+                           class="w-4 h-4 text-primary-600 bg-dark-bg border-dark-border rounded focus:ring-primary-500">
+                    <span class="text-sm text-gray-300">NDVI (Vegetation)</span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Analysis actions -->
+        <div class="p-4 mt-auto">
+            <button onclick="fetchData()" class="w-full px-4 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-medium rounded-lg transition-all shadow-lg shadow-primary-900/50">
+                Run Analysis
+            </button>
+            <button onclick="exportData()" class="w-full mt-3 px-4 py-2 bg-dark-bg border border-dark-border hover:border-primary-500 text-gray-300 text-sm rounded-lg transition-colors">
+                Export Results
+            </button>
+        </div>
+    </aside>
+    
+    <!-- Main content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top bar -->
+        <header class="bg-dark-card border-b border-dark-border px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+                <div class="flex items-center space-x-4">
+                    <span id="location-name" class="text-sm text-gray-400">Rome, Italy</span>
+                    <span id="subscription-badge" class="px-3 py-1 bg-primary-900/50 text-primary-300 text-xs rounded-full">
+                        {{ subscription_plan|default('Free')|title }}
+                    </span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Map and charts container -->
+        <div class="flex-1 overflow-auto p-6">
+            <!-- Map -->
+            <div class="mb-6">
+                <div class="bg-dark-card rounded-xl border border-dark-border overflow-hidden">
+                    <div class="px-4 py-3 border-b border-dark-border flex items-center justify-between">
+                        <h3 class="font-semibold text-white">Interactive Map</h3>
+                        <div class="flex items-center space-x-2 text-xs text-gray-400">
+                            <span class="flex items-center">
+                                <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                Weather Stations
+                            </span>
+                            <span class="flex items-center ml-4">
+                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                Selected Area
+                            </span>
+                        </div>
+                    </div>
+                    <div id="map" class="h-[500px] w-full"></div>
+                </div>
+            </div>
+            
+            <!-- Charts grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Temperature chart -->
+                <div class="bg-dark-card rounded-xl border border-dark-border p-4">
+                    <h4 class="text-sm font-medium text-gray-400 mb-4">Temperature Trend</h4>
+                    <canvas id="temp-chart" height="200"></canvas>
+                </div>
+                
+                <!-- Solar radiation chart -->
+                <div class="bg-dark-card rounded-xl border border-dark-border p-4">
+                    <h4 class="text-sm font-medium text-gray-400 mb-4">Solar Radiation</h4>
+                    <canvas id="solar-chart" height="200"></canvas>
+                </div>
+                
+                <!-- Wind speed chart -->
+                <div class="bg-dark-card rounded-xl border border-dark-border p-4">
+                    <h4 class="text-sm font-medium text-gray-400 mb-4">Wind Speed</h4>
+                    <canvas id="wind-chart" height="200"></canvas>
+                </div>
+                
+                <!-- Precipitation chart -->
+                <div class="bg-dark-card rounded-xl border border-dark-border p-4">
+                    <h4 class="text-sm font-medium text-gray-400 mb-4">Precipitation</h4>
+                    <canvas id="precip-chart" height="200"></canvas>
+                </div>
+                
+                <!-- NDVI chart -->
+                <div class="bg-dark-card rounded-xl border border-dark-border p-4">
+                    <h4 class="text-sm font-medium text-gray-400 mb-4">Vegetation Index (NDVI)</h4>
+                    <canvas id="ndvi-chart" height="200"></canvas>
+                </div>
+                
+                <!-- Energy production summary -->
+                <div class="bg-gradient-to-br from-primary-900/50 to-dark-card rounded-xl border border-primary-800 p-4">
+                    <h4 class="text-sm font-medium text-primary-300 mb-4">Energy Production Estimate</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-400">Solar (Daily)</span>
+                                <span id="solar-production" class="text-white font-semibold">-- kWh</span>
+                            </div>
+                            <div class="w-full bg-dark-border rounded-full h-2">
+                                <div id="solar-bar" class="bg-yellow-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-400">Wind (Daily)</span>
+                                <span id="wind-production" class="text-white font-semibold">-- kWh</span>
+                            </div>
+                            <div class="w-full bg-dark-border rounded-full h-2">
+                                <div id="wind-bar" class="bg-cyan-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="pt-2 border-t border-primary-800">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-400">Total</span>
+                                <span id="total-production" class="text-lg font-bold text-primary-300">-- kWh/day</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data table -->
+            <div class="mt-6 bg-dark-card rounded-xl border border-dark-border overflow-hidden">
+                <div class="px-4 py-3 border-b border-dark-border">
+                    <h3 class="font-semibold text-white">Recent Data Points</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-dark-bg">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Temp (°C)</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Humidity (%)</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Precip (mm)</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Wind (m/s)</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Solar (kWh/m²)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body" class="divide-y divide-dark-border">
+                            <tr>
+                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                    Click "Run Analysis" to fetch data
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Dashboard JavaScript -->
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([41.9028, 12.4964], 6);
+        
+        // Add dark matter tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Marker for selected location
+        let marker = L.marker([41.9028, 12.4964], {
+            draggable: true
+        }).addTo(map);
+        
+        // Update inputs when marker is dragged
+        marker.on('dragend', function(event) {
+            const position = marker.getLatLng();
+            document.getElementById('latitude').value = position.lat.toFixed(4);
+            document.getElementById('longitude').value = position.lng.toFixed(4);
+        });
+        
+        // Map click to set location
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            document.getElementById('latitude').value = e.latlng.lat.toFixed(4);
+            document.getElementById('longitude').value = e.latlng.lng.toFixed(4);
+        });
+        
+        // Update map from input fields
+        function updateMapFromInputs() {
+            const lat = parseFloat(document.getElementById('latitude').value);
+            const lng = parseFloat(document.getElementById('longitude').value);
+            
+            if (!isNaN(lat) && !isNaN(lng)) {
+                map.setView([lat, lng], 10);
+                marker.setLatLng([lat, lng]);
+            }
+        }
+        
+        // Toggle layers (placeholder)
+        function toggleLayer(layerName) {
+            console.log(`Toggling layer: ${layerName}`);
+            // Implement layer toggling logic
+        }
+        
+        // Fetch data from API (placeholder)
+        async function fetchData() {
+            const lat = document.getElementById('latitude').value;
+            const lng = document.getElementById('longitude').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            
+            console.log('Fetching data:', { lat, lng, startDate, endDate });
+            
+            // Show loading state
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = '<span class="flex items-center justify-center"><svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Loading...</span>';
+            
+            try {
+                // TODO: Implement actual API call
+                // const response = await fetch('/api/data?...', { method: 'GET' });
+                // const data = await response.json();
+                
+                // Simulate loading delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Update UI with sample data
+                updateCharts();
+                updateTable();
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                alert('Error fetching data. Please try again.');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Run Analysis';
+            }
+        }
+        
+        // Initialize charts
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+            }
+        };
+        
+        const tempChart = new Chart(document.getElementById('temp-chart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Temperature',
+                    data: [8, 10, 14, 18, 23, 28],
+                    borderColor: '#ef4444',
+                    tension: 0.4
+                }]
+            },
+            options: chartOptions
+        });
+        
+        const solarChart = new Chart(document.getElementById('solar-chart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Solar Radiation',
+                    data: [2.5, 3.2, 4.5, 5.8, 7.2, 8.1],
+                    backgroundColor: '#eab308'
+                }]
+            },
+            options: chartOptions
+        });
+        
+        const windChart = new Chart(document.getElementById('wind-chart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Wind Speed',
+                    data: [4.2, 4.5, 5.1, 4.8, 3.9, 3.5],
+                    borderColor: '#06b6d4',
+                    tension: 0.4
+                }]
+            },
+            options: chartOptions
+        });
+        
+        const precipChart = new Chart(document.getElementById('precip-chart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Precipitation',
+                    data: [80, 70, 65, 55, 40, 25],
+                    backgroundColor: '#3b82f6'
+                }]
+            },
+            options: chartOptions
+        });
+        
+        const ndviChart = new Chart(document.getElementById('ndvi-chart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'NDVI',
+                    data: [0.3, 0.4, 0.55, 0.7, 0.75, 0.65],
+                    borderColor: '#22c55e',
+                    tension: 0.4
+                }]
+            },
+            options: chartOptions
+        });
+        
+        // Update charts with new data (placeholder)
+        function updateCharts() {
+            // Generate random sample data
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            const tempData = months.map(() => Math.round(Math.random() * 20 + 10));
+            const solarData = months.map(() => (Math.random() * 5 + 3).toFixed(1));
+            
+            tempChart.data.datasets[0].data = tempData;
+            solarChart.data.datasets[0].data = solarData;
+            
+            tempChart.update();
+            solarChart.update();
+            
+            // Update energy production estimates
+            document.getElementById('solar-production').textContent = (Math.random() * 20 + 10).toFixed(1) + ' kWh';
+            document.getElementById('wind-production').textContent = (Math.random() * 15 + 5).toFixed(1) + ' kWh';
+            document.getElementById('total-production').textContent = (Math.random() * 35 + 15).toFixed(1) + ' kWh/day';
+            
+            document.getElementById('solar-bar').style.width = '70%';
+            document.getElementById('wind-bar').style.width = '45%';
+        }
+        
+        // Update data table (placeholder)
+        function updateTable() {
+            const tbody = document.getElementById('data-table-body');
+            const today = new Date();
+            
+            let html = '';
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                
+                html += `
+                    <tr class="hover:bg-dark-bg transition-colors">
+                        <td class="px-4 py-3 text-gray-300">${date.toLocaleDateString()}</td>
+                        <td class="px-4 py-3 text-gray-300">${(Math.random() * 15 + 15).toFixed(1)}</td>
+                        <td class="px-4 py-3 text-gray-300">${Math.round(Math.random() * 40 + 40)}</td>
+                        <td class="px-4 py-3 text-gray-300">${(Math.random() * 10).toFixed(1)}</td>
+                        <td class="px-4 py-3 text-gray-300">${(Math.random() * 5 + 2).toFixed(1)}</td>
+                        <td class="px-4 py-3 text-gray-300">${(Math.random() * 4 + 3).toFixed(1)}</td>
+                    </tr>
+                `;
+            }
+            
+            tbody.innerHTML = html;
+        }
+        
+        // Export data (placeholder)
+        function exportData() {
+            alert('Export functionality will be implemented soon.');
+        }
+        
+        // Set default dates
+        const today = new Date();
+        const lastMonth = new Date();
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+        
+        document.getElementById('end-date').value = today.toISOString().split('T')[0];
+        document.getElementById('start-date').value = lastMonth.toISOString().split('T')[0];
+    </script>
+</body>
+</html>

@@ -147,34 +147,45 @@ flask_satellite_app/
 
 ---
 
-## [2025-01-15] - Ridimensionamento Grafici e Filtri Colorati
+## [2025-01-15 14:30] - Logout Dashboard e Ottimizzazione Grafici
 
 ### FEAT - Nuove funzionalità
-- **Filtri Colorati per Grafici**: Aggiunti tre pulsanti filtro nell'AnalyticsPanel per mostrare/nascondere i grafici
-  - Filtro Temperatura (colore ciano #38bdf8)
-  - Filtro NDVI (colore verde #22c55e)
-  - Filtro AQI (colore dinamico basato sul valore medio)
-  - Ogni filtro mostra stato attivo (✓) o inattivo (○) con bordo colorato e background semi-trasparente
+- **Logout nella Dashboard**: Aggiunto pulsante logout nell'header della Dashboard
+  - Posizionato accanto alle informazioni utente
+  - Stile rosso (#ef4444) con effetto hover inverso
+  - Icona 🚪 per chiarezza visiva
+  - Redirect automatico a `/login` dopo il logout
   
-- **Ridimensionamento Grafici**: Ottimizzate le altezze dei grafici per migliorare la visualizzazione
-  - Temperature AreaChart: da 140px a 120px (-14%)
-  - NDVI BarChart: da 120px a 100px (-17%)
-  - AQI LineChart: da 100px a 80px (-20%)
-  - Risparmio totale spazio verticale: ~60px
+### FIX - Correzioni
+- **AnalyticsPanel.tsx**: Implementati filtri colorati funzionanti per i grafici
+  - Filtro Temperatura (ciano #38bdf8) - show/hide AreaChart
+  - Filtro NDVI (verde #22c55e) - show/hide BarChart  
+  - Filtro AQI (colore dinamico) - show/hide LineChart
+  - Ogni filtro mostra stato attivo (✓) o inattivo (○) con feedback visivo immediato
+  
+- **Ridimensionamento Grafici**: Altezze ottimizzate per visualizzazione compatta
+  - Temperature AreaChart: 120px
+  - NDVI BarChart: 100px
+  - AQI LineChart: 80px
 
 ### REFACTOR - Refactoring
-- **AnalyticsPanel.tsx**: 
-  - Aggiunto state `activeCharts` per gestire visibilità dei tre grafici
+- **Dashboard.tsx**: 
+  - Importato `useNavigate` da react-router-dom
+  - Aggiunta funzione `handleLogout()` che chiama logout() dallo store e naviga a /login
+  - Header ristrutturato con flexbox per allineare user-tag e logout button
+  
+- **AnalyticsPanel.tsx**:
+  - Aggiunto state `activeCharts` per gestire visibilità grafici
   - Implementata funzione `toggleChart()` per attivare/disattivare singoli grafici
-  - Condizionale rendering dei componenti Recharts basato sui filtri attivi
-  - Migliorata UX con feedback visivo immediato sui pulsanti filtro
+  - Rendering condizionale dei componenti Recharts basato sui filtri attivi
 
 ### File Coinvolti
+- `/workspace/src/pages/Dashboard.tsx`
 - `/workspace/src/components/Dashboard/AnalyticsPanel.tsx`
 
 ### Note Tecniche
-- I filtri mantengono lo stato durante la sessione
-- Il colore del filtro AQI è dinamico e si adatta alla qualità dell'aria media
+- Build completato con successo senza errori TypeScript
+- Il logout pulisce lo stato di autenticazione dallo Zustand store
+- I filtri dei grafici mantengono lo stato durante la sessione corrente
 - Transizioni fluide (0.2s ease) per migliorare l'esperienza utente
-- Build verificato senza errori TypeScript
 

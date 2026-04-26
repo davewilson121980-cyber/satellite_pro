@@ -144,3 +144,37 @@ flask_satellite_app/
 - Integrare API Key reale per OpenWeatherMap (attualmente usa 'demo')
 - Implementare overlay canvas per visualizzazione avanzata dati mockati
 - Aggiungere controllo intensità per ogni layer meteo
+
+---
+
+## [2025-01-15] - Ridimensionamento Grafici e Filtri Colorati
+
+### FEAT - Nuove funzionalità
+- **Filtri Colorati per Grafici**: Aggiunti tre pulsanti filtro nell'AnalyticsPanel per mostrare/nascondere i grafici
+  - Filtro Temperatura (colore ciano #38bdf8)
+  - Filtro NDVI (colore verde #22c55e)
+  - Filtro AQI (colore dinamico basato sul valore medio)
+  - Ogni filtro mostra stato attivo (✓) o inattivo (○) con bordo colorato e background semi-trasparente
+  
+- **Ridimensionamento Grafici**: Ottimizzate le altezze dei grafici per migliorare la visualizzazione
+  - Temperature AreaChart: da 140px a 120px (-14%)
+  - NDVI BarChart: da 120px a 100px (-17%)
+  - AQI LineChart: da 100px a 80px (-20%)
+  - Risparmio totale spazio verticale: ~60px
+
+### REFACTOR - Refactoring
+- **AnalyticsPanel.tsx**: 
+  - Aggiunto state `activeCharts` per gestire visibilità dei tre grafici
+  - Implementata funzione `toggleChart()` per attivare/disattivare singoli grafici
+  - Condizionale rendering dei componenti Recharts basato sui filtri attivi
+  - Migliorata UX con feedback visivo immediato sui pulsanti filtro
+
+### File Coinvolti
+- `/workspace/src/components/Dashboard/AnalyticsPanel.tsx`
+
+### Note Tecniche
+- I filtri mantengono lo stato durante la sessione
+- Il colore del filtro AQI è dinamico e si adatta alla qualità dell'aria media
+- Transizioni fluide (0.2s ease) per migliorare l'esperienza utente
+- Build verificato senza errori TypeScript
+

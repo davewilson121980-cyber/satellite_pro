@@ -189,3 +189,134 @@ flask_satellite_app/
 - I filtri dei grafici mantengono lo stato durante la sessione corrente
 - Transizioni fluide (0.2s ease) per migliorare l'esperienza utente
 
+---
+
+## [2025-01-15 15:45] - Filtri Colorati Mappa e Satellite Layer con Logout Funzionante
+
+### FEAT - Nuove funzionalità
+- **Mappa Satellitare con Immagini Reali**: Sostituito layer CartoDB Dark Matter con Esri World Imagery
+  - Tile layer satellitare ad alta risoluzione da ArcGIS Online
+  - Layer aggiuntivo Esri World Boundaries and Places per nomi geografici
+  - Visualizzazione realistica del territorio con foto satellitari vere
+  - Nomi di città, paesi e luoghi visibili sulla mappa
+  
+- **Filtri Colorati per Data Layers**: Implementati indicatori colorati funzionanti per i layer
+  - Weather Data (blu #3b82f6) - indicatore luminoso con glow effect
+  - Solar Energy (giallo #eab308) - indicatore luminoso con glow effect
+  - Wind Energy (ciano #06b6d4) - indicatore luminoso con glow effect
+  - NDVI Vegetation (verde #22c55e) - indicatore luminoso con glow effect
+  - Feedback visivo immediato: layer attivi in evidenza, inattivi semi-trasparenti e in scala di grigi
+  - Transizioni fluide (0.3s ease) con effetto hover e scaling
+  
+- **Logout Funzionante**: Pulsante logout completamente operativo
+  - Conferma dialog prima del logout
+  - Pulizia localStorage e sessionStorage
+  - Redirect a `/login` tramite rotta backend esistente
+  - Messaggio flash di conferma dopo logout
+
+### REFACTOR - Refactoring
+- **dashboard.html**:
+  - Aggiunte classi CSS dedicate per indicatori colorati (`layer-indicator-weather`, `layer-indicator-solar`, etc.)
+  - Sostituiti indicatori statici con classi dinamiche riutilizzabili
+  - Implementata funzione `DOMContentLoaded` per inizializzare correttamente stati layer
+  - Migliorata gestione toggle layer con feedback visivo coerente
+  - Aggiornato tile layer labels da Stamen Toner a Esri World Boundaries (più affidabile)
+
+### File Coinvolti
+- `/workspace/templates/dashboard.html`
+
+### Note Tecniche
+- Mappa Leaflet.js con tile server Esri ArcGIS Online
+- Gli indicatori usano box-shadow per creare effetto glow/colorato
+- Il sistema di filtri mantiene compatibilità con checkbox HTML standard
+- Logout integrato con Flask-Login esistente
+
+
+---
+
+## [2025-01-15 16:30] - Overlay Colorati Data Layers, Grafici e Menu Filtri Trasparenti
+
+### FEAT - Nuove funzionalità
+
+#### Mappa Satellitare Avanzata
+- **Tile Layer Esri World Imagery**: Foto satellitari ad alta risoluzione come base mappa
+  - URL: `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}`
+  - Opzione `noWrap: true` per prevenire ripetizione atlante
+  - Massima zoom: 19
+  
+- **Layer Etichette Esri World Boundaries and Places**: Nomi luoghi geografici
+  - URL: `https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`
+  - Opacità 0.8 per leggibilità
+  - `noWrap: true` per coerenza con layer base
+
+#### Overlay Colorati per Data Layers
+- **Weather Layer** (blu #3b82f6):
+  - Nuvole: blu (#3b82f6)
+  - Pioggia: rosso (#ef4444)
+  - Temperatura: arancione zone calde (#f97316)
+  - Vento: ciano (#06b6d4) con indicatori interattivi
+
+- **Solar Layer**:
+  - Infrarosso: rosso (#ef4444)
+  - UV: blu (#3b82f6)
+
+- **NDVI Layer** (verde #22c55e): Aloni verdi per vegetazione
+
+- **Popup Informativi**: Click su ogni layer mostra popup con:
+  - Nome località (coordinate)
+  - Tipo dato meteo/solare/vegetazione
+  - Colore corrispondente al tipo di layer
+
+#### Prevenzione Ripetizione Atlante
+- Impostato `maxBounds: [[-90, -180], [90, 180]]` nella inizializzazione mappa
+- Aggiunto `noWrap: true` a tutti i tile layer
+- `worldCopyJump: false` per evitare salti tra copie del mondo
+
+#### Elementi Trasparenti
+- **Grafici Trasparenti dentro la Mappa**:
+  - Chart opacity regolabile tramite slider (0.1 - 1.0)
+  - Background grafici: `rgba(31, 41, 55, ${chartOpacity * 0.5})`
+  - Backdrop-filter blur per effetto glassmorphism
+  - Transizioni fluide durante cambio opacità
+
+- **Menu Filtri Trasparente dentro la Mappa**:
+  - Filter menu opacity regolabile tramite slider (0.3 - 1.0)
+  - Background: `rgba(30, 41, 59, ${filterMenuOpacity * 0.85})`
+  - Backdrop-filter blur(12px) per effetto vetro
+  - Slider dedicati nel ControlPanel per entrambe le opacità
+
+### FIX - Correzioni
+- **TypeScript Errors Risolti**:
+  - Aggiunti layer 'ndvi', 'infrared', 'uv' in `dataService.ts`
+  - Aggiunte props `chartOpacity` e `filterMenuOpacity` in `ProfessionalMapProps`
+  - Tutti i tipi TypeScript ora allineati con implementazione
+
+### REFACTOR - Refactoring
+- **dataService.ts**: Completate sorgenti tile per tutti i layer:
+  - NDVI: OpenWeatherMap NDVI tiles
+  - Infrared: OpenWeatherMap infrared tiles
+  - UV: OpenWeatherMap UV index tiles
+
+- **ProfessionalMap.tsx**:
+  - Popup informativi arricchiti con descrizioni specifiche
+  - Commenti descrittivi per colori overlay
+  - Gestione coerente opacità per tutti i layer
+
+- **index.css**:
+  - `.analytics-panel .chart-wrap`: background semi-trasparente con backdrop-filter
+  - Transizioni fluide per cambi opacità
+
+### File Coinvolti
+- `/workspace/src/api/dataService.ts`
+- `/workspace/src/components/Map/ProfessionalMap.tsx`
+- `/workspace/src/components/Dashboard/AnalyticsPanel.tsx`
+- `/workspace/src/components/UI/ControlPanel.tsx`
+- `/workspace/src/pages/Dashboard.tsx`
+- `/workspace/src/index.css`
+
+### Note Tecniche
+- Build completato con successo senza errori TypeScript
+- MapLibre/Leaflet con maxBounds e noWrap per esperienza utente ottimale
+- Sistema di opacità indipendente per grafici e menu filtri
+- Effetto glassmorphism coerente con design system enterprise
+- Popup interattivi su click dei layer per informazioni contestuali

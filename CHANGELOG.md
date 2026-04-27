@@ -369,3 +369,75 @@ flask_satellite_app/
 - Coordinate visualizzate con 4 decimali per precisione
 - Build TypeScript completato senza errori o warning
 
+---
+
+## [2025-01-15 18:00] - UI Ispirata a Zoom Earth: Etichette Città, Coordinate, Scala e Controlli Meteo
+
+### FEAT - Nuove funzionalità
+
+#### Etichette Città con Temperature (ispirato a Zoom Earth)
+- **City Labels Interattive**: Aggiunte etichette per 12 città italiane con temperature in tempo reale
+  - Ogni città mostra nome e temperatura corrente in un "pill" colorato
+  - Colori dinamici basati sulla temperatura (ispirati alla legenda di Zoom Earth):
+    - Molto freddo (≤0°C): ciano chiaro (#a5f3fc)
+    - Freddo (≤10°C): ciano (#67e8f9)
+    - Fresco (≤15°C): ciano scuro (#22d3ee)
+    - Mite (≤20°C): giallo chiaro (#fef08a)
+    - Caldo (≤25°C): giallo (#fde047)
+    - Molto caldo (≤30°C): giallo scuro (#facc15)
+    - Torrido (≤35°C): arancione (#fb923c)
+    - Estremo (>35°C): rosso (#f87171)
+  - Tooltip al passaggio del mouse per ogni città
+  - Posizionamento assoluto sopra i layer della mappa
+
+#### Footer con Coordinate in Tempo Reale
+- **Coordinate Display**: Mostra latitudine e longitudine sotto il cursore
+  - Formato: `XX.XX° N/S` e `YY.YY° E/O`
+  - Aggiornamento in tempo reale durante il movimento del mouse
+  - Stile glassmorphism con background semi-trasparente
+  - Posizionato in basso a sinistra (come Zoom Earth)
+
+#### Scala di Distanza Dinamica
+- **Distance Scale**: Mostra scala di distanza basata sul livello di zoom
+  - Calcolo automatico della distanza visibile nella mappa
+  - Formattazione automatica in metri o chilometri
+  - Stile con bordo superiore e laterale bianco (come Zoom Earth)
+  - Posizionata in basso a destra
+
+#### Selettore Modelli Previsionali
+- **Model Selector Button**: Bottone per selezionare modello meteo ICON/GFS
+  - Display del modello corrente con etichetta "Modello"
+  - Pannello dropdown con selezione radio button
+  - Dettagli risoluzione: ICON (13 km), GFS (22 km)
+  - Highlight del modello selezionato con bordo blu
+  - Posizionato in alto a sinistra
+
+#### Toggle Radar
+- **Radar Toggle Button**: Attiva/disattiva layer radar precipitazioni
+  - Indicatore LED verde/rosso per stato on/off
+  - Glow effect quando attivo
+  - Label "Radar" con icona
+  - Posizionato in alto a destra
+
+### REFACTOR - Refactoring
+- **ProfessionalMap.tsx**:
+  - Aggiunta interfaccia `CityLabel` per struttura dati città
+  - Array `cityLabels` con coordinate e temperature di 12 città italiane
+  - Funzione `getTemperatureColor()` per mappatura temperatura→colore
+  - Funzione `updateScaleDisplay()` per calcolo dinamico scala
+  - Stati React aggiuntivi: `coordinates`, `scaleDistance`, `selectedModel`, `showModelPanel`, `radarState`
+  - Cleanup markers nel return dell'useEffect' principale
+  - Event listener 'mousemove' e 'zoomend' per aggiornamenti dinamici
+
+### File Coinvolti
+- `/workspace/src/components/Map/ProfessionalMap.tsx`
+
+### Note Tecniche
+- Ispirazione diretta dall'UI di Zoom Earth (zoom.earth)
+- Tutti gli elementi UI usano backdrop-filter blur per coerenza glassmorphism
+- Transizioni fluide (0.2s ease) per tutti gli stati interattivi
+- Accessibilità: aria-label su tutti i bottoni
+- Build TypeScript completato senza errori
+- Marker Leaflet puliti correttamente nel cleanup
+
+---

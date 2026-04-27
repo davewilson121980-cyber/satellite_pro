@@ -517,3 +517,82 @@ flask_satellite_app/
 - Compatibilità con browser moderni (backdrop-filter support richiesto)
 
 ---
+
+---
+
+## [2025-01-15 19:00] - Integrazione Store Globale per Funzionalità Zoom Earth in React/TypeScript
+
+### FEAT - Nuove funzionalità
+
+#### Store Globale (Zustand) Esteso
+- **useAppStore.ts**: Aggiunti nuovi stati globali per coordinare le funzionalità tra componenti
+  - `weatherModel`: Tipo `'ICON' | 'GFS'` - Modello meteo selezionato (default: 'ICON')
+  - `radarState`: Tipo `'on' | 'off'` - Stato toggle radar precipitazioni (default: 'off')
+  - `coordinates`: Oggetto `{ lat: number; lng: number }` - Coordinate mouse in tempo reale
+  - Metodi setter: `setWeatherModel()`, `setRadarState()`, `setCoordinates()`
+
+#### Tipi TypeScript Aggiornati
+- **types/index.ts**: Nuovi tipi esportati per coerenza in tutto il progetto
+  - `WeatherModel = 'ICON' | 'GFS'` - Modelli previsionali disponibili
+  - `RadarState = 'on' | 'off'` - Stati possibili del radar
+  - `CityLabel` - Interfaccia per etichette città (name, lat, lng, temp)
+  - Estesa interfaccia `AppState` con nuovi campi e metodi
+
+#### ProfessionalMap.tsx - Integrazione Store
+- **Import aggiuntivi**: 
+  - `useAppStore` da '../../store/useAppStore'
+  - `CityLabel` da '../../types'
+  
+- **Rimosso stato locale ridondante**:
+  - Eliminati `useState` per `coordinates`, `selectedModel`, `radarState`
+  - Utilizzo diretto dello store globale tramite destructuring
+  
+- **Aggiornamenti funzionali**:
+  - Bottone modello meteo ora usa `weatherModel` e `setWeatherModel` dallo store
+  - Toggle radar usa `radarState` e `setRadarState` dallo store
+  - Layer pioggia aggiornato per rispondere allo stato radar: opacità 0.8 quando ON, 0 quando OFF
+  - Coordinate mappa aggiornano lo store globale tramite `setCoordinates()`
+
+#### AnalyticsPanel.tsx - Indicatori Contestuali
+- **Import da useAppStore**: Ottenuti `weatherModel` e `radarState` dallo store
+- **Nuovi indicatori nell'header**:
+  - Badge modello meteo: sfondo blu semi-trasparente, testo grigio chiaro
+  - Badge radar: colore dinamico (verde se ON, grigio se OFF) con LED indicatore
+  - Entrambi gli indicatori usano stile glassmorphism coerente col design system
+
+### REFACTOR - Refactoring
+
+#### Centralizzazione Stato
+- Tutto lo stato relativo a modello meteo, radar e coordinate è ora centralizzato in useAppStore
+- Rimossa duplicazione stato tra ProfessionalMap e altri componenti
+- Migliore coordinazione tra componenti: cambiamenti in un componente si riflettono ovunque
+
+#### ProfessionalMap.tsx
+- Semplificata gestione stato: rimossi 3 useState locali
+- Aggiornato useEffect layer meteo per includere `radarState` nelle dipendenze
+- Layer pioggia controllato dinamicamente: visibilità basata su stato radar globale
+
+#### Consistenza UI
+- Stessi identici stili glassmorphism tra dashboard.html e versione React
+- Badge e indicatori allineati visualmente tra implementazioni Flask e React
+
+### File Coinvolti
+- `/workspace/src/types/index.ts` - Nuovi tipi e interfacce
+- `/workspace/src/store/useAppStore.ts` - Stati globali estesi
+- `/workspace/src/components/Map/ProfessionalMap.tsx` - Integrazione store completo
+- `/workspace/src/components/Dashboard/AnalyticsPanel.tsx` - Indicatori contestuali
+
+### Note Tecniche
+- Build TypeScript completato con successo senza errori
+- Tutti i componenti React ora condividono lo stesso stato globale
+- Le modifiche al modello meteo o radar in ProfessionalMap si riflettono immediatamente in AnalyticsPanel
+- Coordinazione perfetta tra mappa e pannelli analitici
+- Design system glassmorphism mantenuto coerentemente in tutta l'applicazione
+- Codice pronto per future estensioni (es. persistenza preferenze utente, sincronizzazione server)
+
+### Differenze Chiave rispetto a dashboard.html
+- Versione React usa Zustand per stato globale condiviso
+- dashboard.html gestisce stato localmente con JavaScript vanilla
+- Entrambe le versioni mantengono stessa UI/UX ispirata a Zoom Earth
+- React version offre migliore scalabilità e manutenibilità
+

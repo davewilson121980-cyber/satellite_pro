@@ -1,5 +1,7 @@
 ﻿export type LayerID = 'satellite' | 'clouds' | 'temp' | 'wind' | 'precip' | 'ndvi' | 'infrared' | 'uv';
 export type FilterMode = 'none' | 'uv' | 'ir' | 'ndvi' | 'thermal';
+export type WeatherModel = 'ICON' | 'GFS';
+export type RadarState = 'on' | 'off';
 
 export interface EnvDataPoint {
   timestamp: string;
@@ -8,6 +10,13 @@ export interface EnvDataPoint {
   aqi: number;
   ndvi: number;
   windSpeed: number;
+}
+
+export interface CityLabel {
+  name: string;
+  lat: number;
+  lng: number;
+  temp: number;
 }
 
 export interface AppState {
@@ -19,6 +28,9 @@ export interface AppState {
   timeOffset: number;
   isPlaying: boolean;
   uiExpanded: boolean;
+  weatherModel: WeatherModel;
+  radarState: RadarState;
+  coordinates: { lat: number; lng: number };
   setCenter: (c: [number, number]) => void;
   setZoom: (z: number) => void;
   setLayer: (l: LayerID) => void;
@@ -27,4 +39,7 @@ export interface AppState {
   setTimeOffset: (t: number) => void;
   togglePlay: () => void;
   toggleUI: () => void;
+  setWeatherModel: (m: WeatherModel) => void;
+  setRadarState: (s: RadarState) => void;
+  setCoordinates: (coords: { lat: number; lng: number }) => void;
 }

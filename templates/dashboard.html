@@ -57,6 +57,201 @@
         .layer-indicator-solar { background-color: #eab308; box-shadow: 0 0 12px rgba(234, 179, 8, 0.5); }
         .layer-indicator-wind { background-color: #06b6d4; box-shadow: 0 0 12px rgba(6, 182, 212, 0.5); }
         .layer-indicator-ndvi { background-color: #22c55e; box-shadow: 0 0 12px rgba(34, 197, 94, 0.5); }
+        
+        /* Glassmorphism UI elements (inspired by Zoom Earth) */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* City labels with temperature pills */
+        .city-label {
+            position: absolute;
+            z-index: 1000;
+            pointer-events: none;
+            transform: translate(-50%, -100%);
+            transition: all 0.3s ease;
+        }
+        .city-label .label-text {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .city-label .temp-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+            color: #000;
+        }
+        
+        /* Coordinates footer */
+        .coords-footer {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Distance scale */
+        .distance-scale {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            text-align: right;
+        }
+        .distance-scale .scale-bar {
+            height: 4px;
+            background: #fff;
+            border: 2px solid #0f172a;
+            border-radius: 2px;
+            margin-bottom: 4px;
+        }
+        .distance-scale .scale-text {
+            font-size: 10px;
+            color: #fff;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+        
+        /* Weather model selector */
+        .model-selector {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        .model-btn {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .model-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        .model-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: 180px;
+            display: none;
+        }
+        .model-dropdown.show {
+            display: block;
+        }
+        .model-option {
+            padding: 10px 14px;
+            color: #e2e8f0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .model-option:last-child {
+            border-bottom: none;
+        }
+        .model-option:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+        .model-option.active {
+            background: rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+        }
+        .model-option .resolution {
+            font-size: 10px;
+            color: #64748b;
+            margin-left: 6px;
+        }
+        
+        /* Radar toggle button */
+        .radar-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .radar-btn {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            width: 44px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .radar-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        .radar-btn.active {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+        .radar-led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+            transition: all 0.3s ease;
+        }
+        .radar-led.active {
+            background: #22c55e;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+        }
+        .radar-label {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body class="bg-dark-bg text-gray-100 h-screen flex overflow-hidden">
@@ -188,7 +383,58 @@
                             </span>
                         </div>
                     </div>
-                    <div id="map" class="h-[500px] w-full"></div>
+                    <div id="map" class="h-[500px] w-full relative">
+                        <!-- Radar Toggle Button -->
+                        <div class="radar-toggle">
+                            <button class="radar-btn" id="radar-btn" onclick="toggleRadar()" title="Toggle Radar Layer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+                                    <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+                                    <path d="M12 12l4 -4"></path>
+                                </svg>
+                            </button>
+                            <div class="radar-led" id="radar-led"></div>
+                            <span class="radar-label">Radar</span>
+                        </div>
+                        
+                        <!-- Weather Model Selector -->
+                        <div class="model-selector">
+                            <button class="model-btn" id="model-btn" onclick="toggleModelDropdown()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v20M2 12h20"></path>
+                                    <circle cx="12" cy="12" r="4"></circle>
+                                </svg>
+                                <span id="current-model">ICON (13km)</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div class="model-dropdown" id="model-dropdown">
+                                <div class="model-option active" data-model="icon" onclick="selectModel('icon')">
+                                    ICON
+                                    <span class="resolution">13km resolution</span>
+                                </div>
+                                <div class="model-option" data-model="gfs" onclick="selectModel('gfs')">
+                                    GFS
+                                    <span class="resolution">22km resolution</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Coordinates Footer -->
+                        <div class="coords-footer" id="coords-footer">
+                            Lat: 41.9028° N | Lon: 12.4964° E
+                        </div>
+                        
+                        <!-- Distance Scale -->
+                        <div class="distance-scale" id="distance-scale">
+                            <div class="scale-bar" id="scale-bar" style="width: 100px;"></div>
+                            <div class="scale-text" id="scale-text">10 km</div>
+                        </div>
+                        
+                        <!-- City Labels Container -->
+                        <div id="city-labels-container"></div>
+                    </div>
                 </div>
             </div>
             
@@ -564,6 +810,192 @@
         
         document.getElementById('end-date').value = today.toISOString().split('T')[0];
         document.getElementById('start-date').value = lastMonth.toISOString().split('T')[0];
+        
+        // ========== Zoom Earth-inspired Features ==========
+        
+        // City labels with temperature data (Italian cities)
+        const cityLabels = [
+            { name: 'Roma', lat: 41.9028, lng: 12.4964, temp: 22 },
+            { name: 'Milano', lat: 45.4642, lng: 9.1900, temp: 18 },
+            { name: 'Napoli', lat: 40.8518, lng: 14.2681, temp: 21 },
+            { name: 'Torino', lat: 45.0703, lng: 7.6869, temp: 17 },
+            { name: 'Palermo', lat: 38.1157, lng: 13.3615, temp: 24 },
+            { name: 'Genova', lat: 44.4056, lng: 8.9463, temp: 19 },
+            { name: 'Bologna', lat: 44.4949, lng: 11.3426, temp: 20 },
+            { name: 'Firenze', lat: 43.7696, lng: 11.2558, temp: 21 },
+            { name: 'Bari', lat: 41.1171, lng: 16.8719, temp: 22 },
+            { name: 'Catania', lat: 37.5079, lng: 15.0830, temp: 25 },
+            { name: 'Venezia', lat: 45.4408, lng: 12.3155, temp: 18 },
+            { name: 'Verona', lat: 45.4384, lng: 10.9916, temp: 19 }
+        ];
+        
+        // Temperature to color mapping (8 levels like Zoom Earth)
+        function getTempColor(temp) {
+            if (temp <= 0) return 'rgb(126, 250, 226)';      // Cyan (very cold)
+            if (temp <= 5) return 'rgb(139, 254, 219)';      // Light cyan
+            if (temp <= 10) return 'rgb(152, 255, 195)';     // Mint
+            if (temp <= 15) return 'rgb(163, 255, 170)';     // Light green
+            if (temp <= 20) return 'rgb(255, 255, 161)';     // Yellow
+            if (temp <= 25) return 'rgb(255, 255, 134)';     // Light yellow
+            if (temp <= 30) return 'rgb(255, 231, 110)';     // Orange-yellow
+            return 'rgb(255, 169, 75)';                       // Orange (hot)
+        }
+        
+        // Render city labels on map
+        function renderCityLabels() {
+            const container = document.getElementById('city-labels-container');
+            container.innerHTML = '';
+            
+            cityLabels.forEach(city => {
+                // Project lat/lng to pixel coordinates (simplified for demo)
+                const bounds = map.getBounds();
+                const center = map.getCenter();
+                const zoom = map.getZoom();
+                
+                // Simple projection (not perfect but works for demo)
+                const latFactor = (city.lat - bounds.getSouth()) / (bounds.getNorth() - bounds.getSouth());
+                const lngFactor = (city.lng - bounds.getWest()) / (bounds.getEast() - bounds.getWest());
+                
+                const x = lngFactor * container.offsetWidth;
+                const y = (1 - latFactor) * container.offsetHeight;
+                
+                // Only show if within visible bounds
+                if (latFactor >= 0 && latFactor <= 1 && lngFactor >= 0 && lngFactor <= 1) {
+                    const label = document.createElement('div');
+                    label.className = 'city-label';
+                    label.style.left = x + 'px';
+                    label.style.top = y + 'px';
+                    label.innerHTML = `
+                        <span class="label-text">${city.name}</span>
+                        <span class="temp-pill" style="background-color: ${getTempColor(city.temp)}">${city.temp}°</span>
+                    `;
+                    container.appendChild(label);
+                }
+            });
+        }
+        
+        // Update scale bar based on zoom level
+        function updateScaleBar() {
+            const zoom = map.getZoom();
+            const center = map.getCenter();
+            
+            // Calculate approximate distance per pixel at equator
+            const earthCircumference = 40075000; // meters
+            const pixelsPerDegree = Math.pow(2, zoom) * 256 / 360;
+            const metersPerPixel = (earthCircumference / 360) / pixelsPerDegree * Math.cos(center.lat * Math.PI / 180);
+            
+            // Choose appropriate scale
+            let scaleMeters, scaleText;
+            if (metersPerPixel * 100 < 1) {
+                scaleMeters = 10 / metersPerPixel;
+                scaleText = '10 m';
+            } else if (metersPerPixel * 100 < 10) {
+                scaleMeters = 50 / metersPerPixel;
+                scaleText = '50 m';
+            } else if (metersPerPixel * 100 < 100) {
+                scaleMeters = 100 / metersPerPixel;
+                scaleText = '100 m';
+            } else if (metersPerPixel * 100 < 500) {
+                scaleMeters = 500 / metersPerPixel;
+                scaleText = '500 m';
+            } else if (metersPerPixel * 100 < 1000) {
+                scaleMeters = 1000 / metersPerPixel;
+                scaleText = '1 km';
+            } else if (metersPerPixel * 100 < 5000) {
+                scaleMeters = 5000 / metersPerPixel;
+                scaleText = '5 km';
+            } else if (metersPerPixel * 100 < 10000) {
+                scaleMeters = 10000 / metersPerPixel;
+                scaleText = '10 km';
+            } else if (metersPerPixel * 100 < 50000) {
+                scaleMeters = 50000 / metersPerPixel;
+                scaleText = '50 km';
+            } else if (metersPerPixel * 100 < 100000) {
+                scaleMeters = 100000 / metersPerPixel;
+                scaleText = '100 km';
+            } else {
+                scaleMeters = 500000 / metersPerPixel;
+                scaleText = '500 km';
+            }
+            
+            const barWidth = Math.min(Math.max(scaleMeters, 50), 200);
+            document.getElementById('scale-bar').style.width = barWidth + 'px';
+            document.getElementById('scale-text').textContent = scaleText;
+        }
+        
+        // Toggle radar layer
+        let radarEnabled = false;
+        function toggleRadar() {
+            radarEnabled = !radarEnabled;
+            const btn = document.getElementById('radar-btn');
+            const led = document.getElementById('radar-led');
+            
+            if (radarEnabled) {
+                btn.classList.add('active');
+                led.classList.add('active');
+                console.log('✓ Radar layer enabled');
+            } else {
+                btn.classList.remove('active');
+                led.classList.remove('active');
+                console.log('✗ Radar layer disabled');
+            }
+        }
+        
+        // Weather model selector
+        let currentModel = 'icon';
+        function toggleModelDropdown() {
+            const dropdown = document.getElementById('model-dropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectModel(model) {
+            currentModel = model;
+            const options = document.querySelectorAll('.model-option');
+            options.forEach(opt => {
+                opt.classList.remove('active');
+                if (opt.dataset.model === model) {
+                    opt.classList.add('active');
+                }
+            });
+            
+            const modelName = model.toUpperCase();
+            const resolution = model === 'icon' ? '13km' : '22km';
+            document.getElementById('current-model').textContent = `${modelName} (${resolution})`;
+            
+            document.getElementById('model-dropdown').classList.remove('show');
+            console.log(`Weather model changed to: ${modelName} (${resolution})`);
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const modelBtn = document.getElementById('model-btn');
+            const dropdown = document.getElementById('model-dropdown');
+            if (!modelBtn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Update coordinates on mouse move
+        map.on('mousemove', function(e) {
+            const lat = e.latlng.lat.toFixed(4);
+            const lng = e.latlng.lng.toFixed(4);
+            const latDir = lat >= 0 ? 'N' : 'S';
+            const lngDir = lng >= 0 ? 'E' : 'W';
+            document.getElementById('coords-footer').textContent = 
+                `Lat: ${Math.abs(lat)}° ${latDir} | Lon: ${Math.abs(lng)}° ${lngDir}`;
+        });
+        
+        // Update scale and city labels on zoom/move
+        map.on('zoomend moveend', function() {
+            updateScaleBar();
+            renderCityLabels();
+        });
+        
+        // Initialize features on load
+        setTimeout(function() {
+            updateScaleBar();
+            renderCityLabels();
+        }, 100);
     </script>
 </body>
 </html>

@@ -20,11 +20,12 @@ Descrizione: Breve sintesi di cosa è cambiato e perché.
 
 4. Workflow Operativo
 Rilevamento: Identifica il punto esatto dell'intervento.
+Coerenza: Analizza tutti i file e modificali se interagiscono con le linee di codice che hai aggiunto, rimosso o modificato.
 Esecuzione: Applica le modifiche in blocchi logici.
 Validazione: Se sono presenti test, eseguili. Altrimenti, effettua un check sintattico.
 Finalizzazione: Riassumi brevemente le modifiche effettuate all'utente.
 
-5. Vincoli di Output
+6. Vincoli di Output
 Non rimuovere commenti o documentazione esistente senza motivo.
 Mantieni lo stile di formattazione (indentazione, spazi, virgolette) già presente nel file.
 Se una richiesta è ambigua, fermati e chiedi chiarimenti prima di procedere.

@@ -441,3 +441,79 @@ flask_satellite_app/
 - Marker Leaflet puliti correttamente nel cleanup
 
 ---
+
+## [2025-01-15 19:00] - Implementazione Dashboard HTML con Funzionalità Zoom Earth
+
+### FEAT - Nuove funzionalità
+
+#### Dashboard HTML Aggiornata con UI Zoom Earth-inspired
+- **Etichette Città Italiane con Temperature**: 12 città con pill colorate in base alla temperatura
+  - Sistema a 8 livelli cromatici (da ciano per freddo a arancione per caldo)
+  - Proiezione dinamica delle coordinate lat/lng su pixel della mappa
+  - Visibilità condizionata ai bounds correnti della mappa
+  
+- **Coordinate in Tempo Reale**: Footer in basso a sinistra
+  - Formato: `Lat: XX.XXXX° N/S | Lon: YY.YYYY° E/W`
+  - Aggiornamento continuo durante mousemove sulla mappa
+  - Stile glassmorphism con backdrop-filter blur(8px)
+
+- **Scala di Distanza Dinamica**: In basso a destra
+  - Calcolo automatico basato su zoom level e latitudine centrale
+  - Scale multiple: 10m, 50m, 100m, 500m, 1km, 5km, 10km, 50km, 100km, 500km
+  - Barra bianca con bordo nero per massima visibilità
+  - Aggiornamento automatico su zoom/move della mappa
+
+- **Selettore Modelli Meteo**: Toggle dropdown in alto a destra
+  - Due opzioni: ICON (13km resolution) e GFS (22km resolution)
+  - Pannello dropdown con glassmorphism
+  - Highlight dell'opzione attiva con background blu
+  - Chiusura automatica click outside
+
+- **Toggle Radar**: Bottone on/off con LED indicatore in alto a sinistra
+  - Icona radar SVG
+  - LED verde quando attivo con glow effect
+  - LED grigio quando inattivo
+  - Label "Radar" descrittiva
+
+### REFACTOR - Refactoring
+
+#### templates/dashboard.html
+- **CSS Styles**: Aggiunte classi dedicate per nuovi componenti UI:
+  - `.glass-panel`: Pannello semi-trasparente con blur
+  - `.city-label`: Container etichette città con positioning assoluto
+  - `.label-text`: Sfondo scuro semi-trasparente per nomi città
+  - `.temp-pill`: Pill rotonda colorata per temperature
+  - `.coords-footer`: Footer coordinate in basso a sinistra
+  - `.distance-scale`: Scala distanza con barra grafica
+  - `.model-selector`: Dropdown selettore modello
+  - `.model-btn`, `.model-dropdown`, `.model-option`: Componenti selector
+  - `.radar-toggle`, `.radar-btn`, `.radar-led`: Componenti radar toggle
+
+- **JavaScript Functions**: Implementate logiche per nuove features:
+  - `getTempColor(temp)`: Mappatura temperatura→colore RGB (8 livelli)
+  - `renderCityLabels()`: Proiezione e rendering etichette città
+  - `updateScaleBar()`: Calcolo dinamico scala basato su zoom e latitudine
+  - `toggleRadar()`: Attiva/disattiva layer radar con feedback visivo
+  - `toggleModelDropdown()`: Apre/chiude dropdown modelli
+  - `selectModel(model)`: Cambia modello corrente (ICON/GFS)
+  - Event listeners per mousemove, zoomend, moveend
+
+- **HTML Structure**: Aggiunti container nel map div:
+  - `<div class="radar-toggle">`: Bottone radar + LED
+  - `<div class="model-selector">`: Selettore modelli con dropdown
+  - `<div class="coords-footer">`: Display coordinate
+  - `<div class="distance-scale">`: Barra scala + testo
+  - `<div id="city-labels-container">`: Container etichette città
+
+### File Coinvolti
+- `/workspace/templates/dashboard.html`
+
+### Note Tecniche
+- Tutte le funzionalità sono implementate in vanilla JavaScript (nessuna dipendenza aggiuntiva)
+- La proiezione delle città usa un calcolo semplificato basato sui bounds della mappa Leaflet
+- Il calcolo della scala considera la circonferenza terrestre e la correzione coseno per latitudine
+- Gli stili glassmorphism sono coerenti con il design system esistente
+- Inizializzazione automatica delle feature al caricamento pagina (setTimeout 100ms)
+- Compatibilità con browser moderni (backdrop-filter support richiesto)
+
+---

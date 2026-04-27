@@ -1,23 +1,12 @@
 ```
-# Dependencies
-node_modules/
-
 # Build artifacts
 dist/
 build/
 *.tsbuildinfo
 
-# Logs and temp files
-*.log
-*.tmp
-*.swp
+# Dependencies
+node_modules/
 
 # Editors
 .vscode/
-.idea/
-
-# Environment
-.env
-.env.local
-*.env.*
 ```

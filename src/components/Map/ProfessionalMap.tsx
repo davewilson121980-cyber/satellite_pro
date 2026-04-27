@@ -7,6 +7,8 @@ interface ProfessionalMapProps {
   activeLayers: string[]; // Es: ['clouds', 'rain', 'temp']
   spectralFilter: string; // Es: 'ir', 'ndvi', 'thermal'
   timeIndex: number;
+  chartOpacity?: number;
+  filterMenuOpacity?: number;
 }
 
 export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({ 
@@ -57,10 +59,10 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
 
       // 3. Layer Meteo con overlay colorati
       const weatherLayersConfig: Record<string, { url: string; opacity: number; color: string }> = {
-        clouds: { url: getTileSource('clouds'), opacity: 0, color: '#3b82f6' },
-        rain: { url: getTileSource('precip'), opacity: 0, color: '#ef4444' },
-        temp: { url: getTileSource('temp'), opacity: 0, color: '#f97316' },
-        wind: { url: getTileSource('wind'), opacity: 0, color: '#06b6d4' },
+        clouds: { url: getTileSource('clouds'), opacity: 0, color: '#3b82f6' }, // Blu
+        rain: { url: getTileSource('precip'), opacity: 0, color: '#ef4444' },   // Rosso
+        temp: { url: getTileSource('temp'), opacity: 0, color: '#f97316' },     // Arancione zone calde
+        wind: { url: getTileSource('wind'), opacity: 0, color: '#06b6d4' },     // Ciano
       };
 
       Object.entries(weatherLayersConfig).forEach(([layerName, config]) => {
@@ -97,7 +99,7 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
         const popupContent = `
           <div style="font-family: 'Inter', sans-serif; font-size: 14px;">
             <h4 style="margin: 0 0 8px 0; color: #22c55e;">NDVI</h4>
-            <p style="margin: 0; color: #64748b;">Indice di vegetazione</p>
+            <p style="margin: 0; color: #64748b;">Indice di vegetazione - Alone verde</p>
           </div>
         `;
         L.popup({ maxWidth: 250 })
@@ -109,8 +111,8 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
 
       // 5. Layer Solar (Infrared e UV)
       const solarLayersConfig: Record<string, { url: string; opacity: number; color: string }> = {
-        ir: { url: getTileSource('infrared'), opacity: 0, color: '#ef4444' },
-        uv: { url: getTileSource('uv'), opacity: 0, color: '#3b82f6' },
+        ir: { url: getTileSource('infrared'), opacity: 0, color: '#ef4444' }, // Rosso per infrared
+        uv: { url: getTileSource('uv'), opacity: 0, color: '#3b82f6' },        // Blu per uv
       };
 
       Object.entries(solarLayersConfig).forEach(([layerName, config]) => {
@@ -124,7 +126,7 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
           const popupContent = `
             <div style="font-family: 'Inter', sans-serif; font-size: 14px;">
               <h4 style="margin: 0 0 8px 0; color: ${config.color};">${layerName === 'ir' ? 'INFRAROSSO' : 'UV'}</h4>
-              <p style="margin: 0; color: #64748b;">Dati solari</p>
+              <p style="margin: 0; color: #64748b;">Dati solari - ${layerName === 'ir' ? 'Rosso' : 'Blu'}</p>
             </div>
           `;
           L.popup({ maxWidth: 250 })

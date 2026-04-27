@@ -12,7 +12,7 @@ interface ProfessionalMapProps {
 export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({ 
   activeLayers, 
   spectralFilter,
-  timeIndex 
+  timeIndex
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const layersRef = useRef<{ [key: string]: L.TileLayer }>({});
@@ -25,29 +25,42 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
         zoom: 5,
         minZoom: 3,
         maxZoom: 18,
-        worldCopyJump: true,
+        worldCopyJump: false,
+        maxBounds: [[-90, -180], [90, 180]],
+        maxBoundsViscosity: 1.0
       });
 
-      // 1. Layer Satellitare (Base)
+      // 1. Layer Satellitare Esri World Imagery (Base) - Foto ad alta risoluzione
       const satelliteLayer = L.tileLayer(
-        getTileSource('satellite'),
-        { attribution: 'Tiles &copy; Esri', maxZoom: 19, noWrap: true }
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { 
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+          maxZoom: 19, 
+          noWrap: true,
+          subdomains: 'abcd'
+        }
       ).addTo(mapRef.current);
       layersRef.current['satellite'] = satelliteLayer;
 
-      // 2. Layer Etichette (Città, Paesi) - Sovrapposto
+      // 2. Layer Etichette Esri World Boundaries and Places - Nomi luoghi geografici
       const labelsLayer = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
-        { attribution: '&copy; CARTO', subdomains: 'abcd', maxZoom: 19, noWrap: true }
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        { 
+          attribution: '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+          subdomains: 'abcd', 
+          maxZoom: 19, 
+          noWrap: true,
+          opacity: 0.8
+        }
       ).addTo(mapRef.current);
       layersRef.current['labels'] = labelsLayer;
 
-      // 3. Layer Meteo con URL reali da OpenWeatherMap
-      const weatherLayersConfig: Record<string, { url: string; opacity: number }> = {
-        clouds: { url: getTileSource('clouds'), opacity: 0 },
-        rain: { url: getTileSource('precip'), opacity: 0 },
-        temp: { url: getTileSource('temp'), opacity: 0 },
-        wind: { url: getTileSource('wind'), opacity: 0 },
+      // 3. Layer Meteo con overlay colorati
+      const weatherLayersConfig: Record<string, { url: string; opacity: number; color: string }> = {
+        clouds: { url: getTileSource('clouds'), opacity: 0, color: '#3b82f6' },
+        rain: { url: getTileSource('precip'), opacity: 0, color: '#ef4444' },
+        temp: { url: getTileSource('temp'), opacity: 0, color: '#f97316' },
+        wind: { url: getTileSource('wind'), opacity: 0, color: '#06b6d4' },
       };
 
       Object.entries(weatherLayersConfig).forEach(([layerName, config]) => {
@@ -56,6 +69,70 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
           noWrap: true,
           maxZoom: 19
         });
+        
+        // Aggiungi popup informativo
+        layer.on('click', (e) => {
+          const popupContent = `
+            <div style="font-family: 'Inter', sans-serif; font-size: 14px;">
+              <h4 style="margin: 0 0 8px 0; color: ${config.color};">${layerName.toUpperCase()}</h4>
+              <p style="margin: 0; color: #64748b;">Dati meteo in tempo reale</p>
+            </div>
+          `;
+          L.popup({ maxWidth: 250 })
+            .setLatLng(e.latlng)
+            .setContent(popupContent)
+            .openOn(mapRef.current!);
+        });
+        
+        layersRef.current[layerName] = layer;
+      });
+
+      // 4. Layer NDVI con aloni verdi
+      const ndviLayer = L.tileLayer(
+        getTileSource('ndvi'),
+        { opacity: 0, noWrap: true, maxZoom: 19 }
+      );
+      
+      ndviLayer.on('click', (e) => {
+        const popupContent = `
+          <div style="font-family: 'Inter', sans-serif; font-size: 14px;">
+            <h4 style="margin: 0 0 8px 0; color: #22c55e;">NDVI</h4>
+            <p style="margin: 0; color: #64748b;">Indice di vegetazione</p>
+          </div>
+        `;
+        L.popup({ maxWidth: 250 })
+          .setLatLng(e.latlng)
+          .setContent(popupContent)
+          .openOn(mapRef.current!);
+      });
+      layersRef.current['ndvi'] = ndviLayer;
+
+      // 5. Layer Solar (Infrared e UV)
+      const solarLayersConfig: Record<string, { url: string; opacity: number; color: string }> = {
+        ir: { url: getTileSource('infrared'), opacity: 0, color: '#ef4444' },
+        uv: { url: getTileSource('uv'), opacity: 0, color: '#3b82f6' },
+      };
+
+      Object.entries(solarLayersConfig).forEach(([layerName, config]) => {
+        const layer = L.tileLayer(config.url, { 
+          opacity: config.opacity, 
+          noWrap: true,
+          maxZoom: 19
+        });
+        
+        layer.on('click', (e) => {
+          const popupContent = `
+            <div style="font-family: 'Inter', sans-serif; font-size: 14px;">
+              <h4 style="margin: 0 0 8px 0; color: ${config.color};">${layerName === 'ir' ? 'INFRAROSSO' : 'UV'}</h4>
+              <p style="margin: 0; color: #64748b;">Dati solari</p>
+            </div>
+          `;
+          L.popup({ maxWidth: 250 })
+            .setLatLng(e.latlng)
+            .setContent(popupContent)
+            .openOn(mapRef.current!);
+        });
+        
         layersRef.current[layerName] = layer;
       });
 
@@ -76,25 +153,44 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
 
     Object.keys(layersRef.current).forEach(key => {
       const layer = layersRef.current[key];
+      
+      // Gestione layer meteo (clouds, rain, temp, wind)
       if (['clouds', 'rain', 'temp', 'wind'].includes(key)) {
         if (activeLayers.includes(key)) {
           if (!map.hasLayer(layer)) {
             layer.addTo(map);
           }
           layer.setOpacity(0.7); // Opacità visibile
-          
-          // Aggiorna l'URL del layer per includere il timeIndex per l'animazione temporale
-          // Nota: OpenWeatherMap non supporta nativamente il timeIndex, ma questa struttura
-          // permette di integrare facilmente API che lo supportano in futuro
-          // Per simulazione con dati mockati, si potrebbe usare:
-          // const baseUrl = getTileSource(key as 'clouds' | 'precip' | 'temp' | 'wind');
-          // layer.setUrl(`${baseUrl}&time=${timeIndex}`);
+        } else {
+          layer.setOpacity(0);
+        }
+      }
+      
+      // Gestione layer NDVI
+      if (key === 'ndvi') {
+        if (spectralFilter === 'ndvi' || activeLayers.includes('ndvi')) {
+          if (!map.hasLayer(layer)) {
+            layer.addTo(map);
+          }
+          layer.setOpacity(0.6); // Alone verde semi-trasparente
+        } else {
+          layer.setOpacity(0);
+        }
+      }
+      
+      // Gestione layer Solar (infrared e uv)
+      if (['ir', 'uv'].includes(key)) {
+        if (spectralFilter === key) {
+          if (!map.hasLayer(layer)) {
+            layer.addTo(map);
+          }
+          layer.setOpacity(0.7);
         } else {
           layer.setOpacity(0);
         }
       }
     });
-  }, [activeLayers, timeIndex]);
+  }, [activeLayers, spectralFilter, timeIndex]);
 
   // Effetto per applicare filtri spettrali (simulati via CSS filter sul container della mappa)
   useEffect(() => {

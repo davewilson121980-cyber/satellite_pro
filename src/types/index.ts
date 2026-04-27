@@ -1,4 +1,4 @@
-﻿export type LayerID = 'satellite' | 'clouds' | 'temp' | 'wind' | 'precip';
+﻿export type LayerID = 'satellite' | 'clouds' | 'temp' | 'wind' | 'precip' | 'ndvi' | 'infrared' | 'uv';
 export type FilterMode = 'none' | 'uv' | 'ir' | 'ndvi' | 'thermal';
 
 export interface EnvDataPoint {

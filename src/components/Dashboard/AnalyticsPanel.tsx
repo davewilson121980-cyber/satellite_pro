@@ -7,9 +7,10 @@ import { saveAs } from 'file-saver';
 
 interface AnalyticsPanelProps {
   timeIndex: number;
+  chartOpacity?: number;
 }
 
-export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => {
+export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex, chartOpacity = 0.9 }) => {
   const { center } = useAppStore();
   const [data, setData] = useState<EnvDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -198,12 +199,12 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => 
             </div>
           )}
 
-          <div className="chart-wrap">
+          <div className="chart-wrap" style={{ background: `rgba(31, 41, 55, ${chartOpacity * 0.5})` }}>
             <ResponsiveContainer width="100%" height={120}>
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.4}/>
+                    <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.4 * chartOpacity}/>
                     <stop offset="95%" stopColor="#38bdf8" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
@@ -231,13 +232,13 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex }) => 
                   contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 8, fontSize: '0.75rem' }}
                 />
                 {activeCharts.ndvi && (
-                  <Bar dataKey="ndvi" fill="#22c55e" radius={[4, 4, 0, 0]} name="NDVI %" />
+                  <Bar dataKey="ndvi" fill="#22c55e" fillOpacity={chartOpacity} radius={[4, 4, 0, 0]} name="NDVI %" />
                 )}
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="chart-wrap" style={{ marginTop: '0.5rem' }}>
+          <div className="chart-wrap" style={{ marginTop: '0.5rem', background: `rgba(31, 41, 55, ${chartOpacity * 0.5})` }}>
             <ResponsiveContainer width="100%" height={80}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />

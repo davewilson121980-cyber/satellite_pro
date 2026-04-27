@@ -7,7 +7,10 @@ export const getTileSource = (layer: LayerID): string => {
     clouds: 'https://tile.openweathermap.org/map/clouds_new/{z}/{y}/{x}.png?appid=demo',
     temp: 'https://tile.openweathermap.org/map/temp_new/{z}/{y}/{x}.png?appid=demo',
     wind: 'https://tile.openweathermap.org/map/wind_new/{z}/{y}/{x}.png?appid=demo',
-    precip: 'https://tile.openweathermap.org/map/precipitation_new/{z}/{y}/{x}.png?appid=demo'
+    precip: 'https://tile.openweathermap.org/map/precipitation_new/{z}/{y}/{x}.png?appid=demo',
+    ndvi: 'https://tile.openweathermap.org/map/ndvi/{z}/{y}/{x}.png?appid=demo',
+    infrared: 'https://tile.openweathermap.org/map/infrared_new/{z}/{y}/{x}.png?appid=demo',
+    uv: 'https://tile.openweathermap.org/map/uv_index/{z}/{y}/{x}.png?appid=demo'
   };
   return sources[layer];
 };

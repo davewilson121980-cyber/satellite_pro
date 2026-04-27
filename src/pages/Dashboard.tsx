@@ -15,6 +15,10 @@ export const Dashboard: React.FC = () => {
   const [spectralFilter, setSpectralFilter] = useState<string>('none');
   const [timeIndex, setTimeIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  
+  // Stati per opacità grafici e menu filtri trasparenti
+  const [chartOpacity, setChartOpacity] = useState<number>(0.9);
+  const [filterMenuOpacity, setFilterMenuOpacity] = useState<number>(0.85);
 
   const handleLogout = () => {
     logout();
@@ -90,6 +94,8 @@ export const Dashboard: React.FC = () => {
           activeLayers={activeLayers} 
           spectralFilter={spectralFilter}
           timeIndex={timeIndex}
+          chartOpacity={chartOpacity}
+          filterMenuOpacity={filterMenuOpacity}
         />
         
         <aside className="side-panels">
@@ -99,8 +105,12 @@ export const Dashboard: React.FC = () => {
             spectralFilter={spectralFilter}
             onToggleLayer={toggleLayer}
             onSetFilter={setFilter}
+            chartOpacity={chartOpacity}
+            filterMenuOpacity={filterMenuOpacity}
+            onChartOpacityChange={setChartOpacity}
+            onFilterMenuOpacityChange={setFilterMenuOpacity}
           />
-          <AnalyticsPanel timeIndex={timeIndex} />
+          <AnalyticsPanel timeIndex={timeIndex} chartOpacity={chartOpacity} />
         </aside>
       </div>
 

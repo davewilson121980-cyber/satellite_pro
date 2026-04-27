@@ -5,19 +5,28 @@ interface ControlPanelProps {
   spectralFilter: string;
   onToggleLayer: (layer: string) => void;
   onSetFilter: (filter: string) => void;
+  chartOpacity: number;
+  filterMenuOpacity: number;
+  onChartOpacityChange: (opacity: number) => void;
+  onFilterMenuOpacityChange: (opacity: number) => void;
 }
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
   activeLayers,
   spectralFilter,
   onToggleLayer,
-  onSetFilter
+  onSetFilter,
+  chartOpacity,
+  filterMenuOpacity,
+  onChartOpacityChange,
+  onFilterMenuOpacityChange
 }) => {
   const layers = [
     { id: 'clouds', label: 'Nuvole', color: '#3b82f6' }, // Blu
     { id: 'rain', label: 'Pioggia', color: '#ef4444' },   // Rosso
     { id: 'temp', label: 'Temperatura', color: '#f97316' }, // Arancione
-    { id: 'wind', label: 'Vento', color: '#22c55e' },     // Verde
+    { id: 'wind', label: 'Vento', color: '#06b6d4' },     // Ciano
+    { id: 'ndvi', label: 'NDVI', color: '#22c55e' },      // Verde
   ];
 
   const filters = [
@@ -29,7 +38,14 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   ];
 
   return (
-    <div className="control-panel glass p-4 rounded-lg mb-4 overflow-y-auto max-h-[40vh]">
+    <div 
+      className="control-panel glass p-4 rounded-lg mb-4 overflow-y-auto max-h-[40vh]"
+      style={{ 
+        background: `rgba(30, 41, 59, ${filterMenuOpacity * 0.85})`,
+        backdropFilter: 'blur(12px)',
+        transition: 'background 0.2s ease'
+      }}
+    >
       <h3 className="text-lg font-bold mb-3 text-white">Layer Meteo</h3>
       <div className="grid grid-cols-2 gap-2 mb-6">
         {layers.map(layer => (
@@ -46,6 +62,44 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             {layer.label}
           </button>
         ))}
+      </div>
+
+      {/* Slider Opacità Menu Filtri */}
+      <div className="mb-4">
+        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+          Opacità Menu Filtri: {(filterMenuOpacity * 100).toFixed(0)}%
+        </label>
+        <input
+          type="range"
+          min="0.3"
+          max="1"
+          step="0.05"
+          value={filterMenuOpacity}
+          onChange={(e) => onFilterMenuOpacityChange(parseFloat(e.target.value))}
+          className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(filterMenuOpacity - 0.3) / 0.7 * 100}%, #374151 ${(filterMenuOpacity - 0.3) / 0.7 * 100}%, #374151 100%)`
+          }}
+        />
+      </div>
+
+      {/* Slider Opacità Grafici */}
+      <div className="mb-4">
+        <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+          Opacità Grafici: {(chartOpacity * 100).toFixed(0)}%
+        </label>
+        <input
+          type="range"
+          min="0.1"
+          max="1"
+          step="0.05"
+          value={chartOpacity}
+          onChange={(e) => onChartOpacityChange(parseFloat(e.target.value))}
+          className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, #22c55e 0%, #22c55e ${chartOpacity * 100}%, #374151 ${chartOpacity * 100}%, #374151 100%)`
+          }}
+        />
       </div>
 
       <div className="mb-4 w-fit">

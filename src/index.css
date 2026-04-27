@@ -628,10 +628,12 @@ small, .text-sm { font-size: 0.875rem; color: var(--text-muted); }
 .analytics-panel .chart-wrap {
   flex: 1;
   min-height: 180px;
-  background: var(--bg-tertiary);
+  background: rgba(31, 41, 55, 0.5);
   border-radius: var(--radius-sm);
   padding: 0.5rem;
   border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  transition: background 0.2s ease;
 }
 .time-slider {
   position: fixed;

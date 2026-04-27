@@ -320,3 +320,52 @@ flask_satellite_app/
 - Sistema di opacità indipendente per grafici e menu filtri
 - Effetto glassmorphism coerente con design system enterprise
 - Popup interattivi su click dei layer per informazioni contestuali
+
+---
+
+## [2025-01-15 17:00] - Popup Informativi con Località e Tipo Dato, Overlay Trasparenti dentro Mappa
+
+### FEAT - Nuove funzionalità
+
+#### Popup Informativi Avanzati
+- **Popup React dentro la Mappa**: Sostituiti i popup Leaflet nativi con overlay React personalizzati
+  - Stato `popupInfo` gestito tramite useState per coordinate, località e tipo dato
+  - Click su qualsiasi layer (weather, NDVI, solar) mostra popup con:
+    - Nome località (coordinate Lat/Lng formattate)
+    - Tipo dato (CLOUDS, RAIN, TEMP, WIND, NDVI, INFRAROSSO, UV)
+    - Bordo colorato corrispondente al tipo di layer
+  - Click sulla mappa chiude automaticamente il popup
+  - Posizionamento assoluto in alto a destra dentro il container mappa
+
+#### Overlay Trasparenti Regolabili
+- **Popup Overlay Trasparente**: 
+  - Background: `rgba(15, 23, 42, ${filterMenuOpacity * 0.9})`
+  - Backdrop-filter blur(12px) per effetto glassmorphism
+  - Opacità legata allo slider `filterMenuOpacity` esistente
+  - Transizioni fluide (0.2s ease) per apertura/chiusura
+
+#### Miglioramenti Layer Meteo
+- **Weather Layer**: Aggiornato commento per temperatura "arancione zone calde, celeste zone fredde"
+- **Tutti i layer**: Popup unificati con stessa struttura informativa
+
+### REFACTOR - Refactoring
+- **ProfessionalMap.tsx**:
+  - Import aggiunto: `useState` da React
+  - Rimosso uso di `L.popup()` nativo di Leaflet
+  - Implementato stato React `popupInfo` per gestione popup
+  - Aggiunto `useEffect` dedicato per chiudere popup al click su mappa
+  - Componente return modificato per includere overlay popup condizionale
+  - Rimossi import non utilizzati (`useAppStore`, `center`)
+  - Popup ora usano opacità fissa (0.85) per coerenza visiva
+
+### File Coinvolti
+- `/workspace/src/components/Map/ProfessionalMap.tsx`
+
+### Note Tecniche
+- Popup ora sono parte del DOM React invece che overlay Leaflet
+- Migliore integrazione con sistema di opacità esistente
+- Coerenza visiva con design system glassmorphism
+- Chiusura popup intuitiva tramite click anywhere sulla mappa
+- Coordinate visualizzate con 4 decimali per precisione
+- Build TypeScript completato senza errori o warning
+

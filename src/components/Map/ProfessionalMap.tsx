@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getTileSource } from '../../api/dataService';
@@ -18,6 +18,8 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const layersRef = useRef<{ [key: string]: L.TileLayer }>({});
+  const popupOverlayRef = useRef<HTMLDivElement | null>(null);
+  const [popupInfo, setPopupInfo] = useState<{ lat: number; lng: number; location: string; dataType: string; color: string } | null>(null);
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -72,18 +74,16 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
           maxZoom: 19
         });
         
-        // Aggiungi popup informativo
+        // Aggiungi popup informativo con nome località e tipo dato
         layer.on('click', (e) => {
-          const popupContent = `
-            <div style="font-family: 'Inter', sans-serif; font-size: 14px;">
-              <h4 style="margin: 0 0 8px 0; color: ${config.color};">${layerName.toUpperCase()}</h4>
-              <p style="margin: 0; color: #64748b;">Dati meteo in tempo reale</p>
-            </div>
-          `;
-          L.popup({ maxWidth: 250 })
-            .setLatLng(e.latlng)
-            .setContent(popupContent)
-            .openOn(mapRef.current!);
+          const locationName = `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
+          setPopupInfo({
+            lat: e.latlng.lat,
+            lng: e.latlng.lng,
+            location: locationName,
+            dataType: layerName.toUpperCase(),
+            color: config.color
+          });
         });
         
         layersRef.current[layerName] = layer;
@@ -96,16 +96,14 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
       );
       
       ndviLayer.on('click', (e) => {
-        const popupContent = `
-          <div style="font-family: 'Inter', sans-serif; font-size: 14px;">
-            <h4 style="margin: 0 0 8px 0; color: #22c55e;">NDVI</h4>
-            <p style="margin: 0; color: #64748b;">Indice di vegetazione - Alone verde</p>
-          </div>
-        `;
-        L.popup({ maxWidth: 250 })
-          .setLatLng(e.latlng)
-          .setContent(popupContent)
-          .openOn(mapRef.current!);
+        const locationName = `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
+        setPopupInfo({
+          lat: e.latlng.lat,
+          lng: e.latlng.lng,
+          location: locationName,
+          dataType: 'NDVI',
+          color: '#22c55e'
+        });
       });
       layersRef.current['ndvi'] = ndviLayer;
 
@@ -123,16 +121,14 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
         });
         
         layer.on('click', (e) => {
-          const popupContent = `
-            <div style="font-family: 'Inter', sans-serif; font-size: 14px;">
-              <h4 style="margin: 0 0 8px 0; color: ${config.color};">${layerName === 'ir' ? 'INFRAROSSO' : 'UV'}</h4>
-              <p style="margin: 0; color: #64748b;">Dati solari - ${layerName === 'ir' ? 'Rosso' : 'Blu'}</p>
-            </div>
-          `;
-          L.popup({ maxWidth: 250 })
-            .setLatLng(e.latlng)
-            .setContent(popupContent)
-            .openOn(mapRef.current!);
+          const locationName = `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
+          setPopupInfo({
+            lat: e.latlng.lat,
+            lng: e.latlng.lng,
+            location: locationName,
+            dataType: layerName === 'ir' ? 'INFRAROSSO' : 'UV',
+            color: config.color
+          });
         });
         
         layersRef.current[layerName] = layer;
@@ -210,5 +206,53 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
     }
   }, [spectralFilter]);
 
-  return <div id="map-container" style={{ width: '100%', height: '100%', minHeight: '600px', zIndex: 1 }} />;
+  // Chiudi popup quando si clicca sulla mappa
+  useEffect(() => {
+    const handleMapClick = () => setPopupInfo(null);
+    if (mapRef.current) {
+      mapRef.current.on('click', handleMapClick);
+    }
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.off('click', handleMapClick);
+      }
+    };
+  }, []);
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '600px' }}>
+      <div id="map-container" style={{ width: '100%', height: '100%', zIndex: 1 }} />
+      
+      {/* Popup overlay trasparente dentro la mappa */}
+      {popupInfo && (
+        <div
+          ref={popupOverlayRef}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            background: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(12px)',
+            border: `2px solid ${popupInfo.color}`,
+            borderRadius: '12px',
+            padding: '1rem',
+            zIndex: 1000,
+            minWidth: '200px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <h4 style={{ margin: '0 0 8px 0', color: popupInfo.color, fontSize: '14px', fontWeight: 600 }}>
+            {popupInfo.dataType}
+          </h4>
+          <p style={{ margin: '0 0 4px 0', color: '#94a3b8', fontSize: '12px' }}>
+            📍 {popupInfo.location}
+          </p>
+          <p style={{ margin: 0, color: '#64748b', fontSize: '11px' }}>
+            Clicca altrove per chiudere
+          </p>
+        </div>
+      )}
+    </div>
+  );
 };

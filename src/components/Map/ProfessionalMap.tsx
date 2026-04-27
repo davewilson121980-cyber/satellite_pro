@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getTileSource } from '../../api/dataService';
+import { useAppStore } from '../../store/useAppStore';
+import type { CityLabel } from '../../types';
 
 interface ProfessionalMapProps {
   activeLayers: string[]; // Es: ['clouds', 'rain', 'temp']
@@ -9,13 +11,6 @@ interface ProfessionalMapProps {
   timeIndex: number;
   chartOpacity?: number;
   filterMenuOpacity?: number;
-}
-
-interface CityLabel {
-  name: string;
-  lat: number;
-  lng: number;
-  temp: number;
 }
 
 // Dati simulati per le città con temperature (ispirato a Zoom Earth)
@@ -44,11 +39,11 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
   const markersRef = useRef<L.Marker[]>([]);
   const popupOverlayRef = useRef<HTMLDivElement | null>(null);
   const [popupInfo, setPopupInfo] = useState<{ lat: number; lng: number; location: string; dataType: string; color: string } | null>(null);
-  const [coordinates, setCoordinates] = useState({ lat: 0, lng: 0 });
+  
+  // Usa lo store globale per coordinate, modello meteo e radar
+  const { coordinates, setCoordinates, weatherModel, setWeatherModel, radarState, setRadarState } = useAppStore();
   const [scaleDistance, setScaleDistance] = useState<string>('');
-  const [selectedModel, setSelectedModel] = useState<'ICON' | 'GFS'>('ICON');
   const [showModelPanel, setShowModelPanel] = useState(false);
-  const [radarState, setRadarState] = useState<'on' | 'off'>('off');
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -317,7 +312,13 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
         }
       }
     });
-  }, [activeLayers, spectralFilter, timeIndex]);
+    
+    // Aggiorna stato radar nel layer pioggia
+    const rainLayer = layersRef.current['rain'];
+    if (rainLayer && map.hasLayer(rainLayer)) {
+      rainLayer.setOpacity(radarState === 'on' ? 0.8 : 0);
+    }
+  }, [activeLayers, spectralFilter, timeIndex, radarState]);
 
   // Effetto per applicare filtri spettrali (simulati via CSS filter sul container della mappa)
   useEffect(() => {
@@ -419,7 +420,7 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
         aria-label="Modelli previsionali"
       >
         <span style={{ fontSize: '10px', opacity: 0.8 }}>Modello</span>
-        <span>{selectedModel}</span>
+        <span>{weatherModel}</span>
       </button>
       
       {/* Pannello selezione modello (ispirato a Zoom Earth) */}
@@ -446,17 +447,17 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
               alignItems: 'center',
               gap: '8px',
               padding: '8px 10px',
-              background: selectedModel === 'ICON' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+              background: weatherModel === 'ICON' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
               borderRadius: '6px',
               cursor: 'pointer',
-              border: selectedModel === 'ICON' ? '1px solid #3b82f6' : '1px solid transparent',
+              border: weatherModel === 'ICON' ? '1px solid #3b82f6' : '1px solid transparent',
               transition: 'all 0.2s ease'
             }}>
               <input
                 type="radio"
                 name="model"
-                checked={selectedModel === 'ICON'}
-                onChange={() => setSelectedModel('ICON')}
+                checked={weatherModel === 'ICON'}
+                onChange={() => setWeatherModel('ICON')}
                 style={{ accentColor: '#3b82f6' }}
               />
               <span style={{ color: '#fff', fontSize: '12px', fontWeight: 500 }}>ICON</span>
@@ -467,17 +468,17 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
               alignItems: 'center',
               gap: '8px',
               padding: '8px 10px',
-              background: selectedModel === 'GFS' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+              background: weatherModel === 'GFS' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
               borderRadius: '6px',
               cursor: 'pointer',
-              border: selectedModel === 'GFS' ? '1px solid #3b82f6' : '1px solid transparent',
+              border: weatherModel === 'GFS' ? '1px solid #3b82f6' : '1px solid transparent',
               transition: 'all 0.2s ease'
             }}>
               <input
                 type="radio"
                 name="model"
-                checked={selectedModel === 'GFS'}
-                onChange={() => setSelectedModel('GFS')}
+                checked={weatherModel === 'GFS'}
+                onChange={() => setWeatherModel('GFS')}
                 style={{ accentColor: '#3b82f6' }}
               />
               <span style={{ color: '#fff', fontSize: '12px', fontWeight: 500 }}>GFS</span>
@@ -489,7 +490,7 @@ export const ProfessionalMap: React.FC<ProfessionalMapProps> = ({
       
       {/* Bottone toggle radar (ispirato a Zoom Earth) */}
       <button
-        onClick={() => setRadarState(prev => prev === 'on' ? 'off' : 'on')}
+        onClick={() => setRadarState(radarState === 'on' ? 'off' : 'on')}
         style={{
           position: 'absolute',
           top: '10px',

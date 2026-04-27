@@ -11,7 +11,7 @@ interface AnalyticsPanelProps {
 }
 
 export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex, chartOpacity = 0.9 }) => {
-  const { center } = useAppStore();
+  const { center, weatherModel, radarState } = useAppStore();
   const [data, setData] = useState<EnvDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -97,7 +97,38 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ timeIndex, chart
     <div className="analytics-panel">
       <div className="panel-header">
         <h3>📊 Dati Ambientali</h3>
-        <button onClick={exportCSV} disabled={loading}>📥 Esporta</button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          {/* Indicatore modello meteo */}
+          <span style={{ 
+            fontSize: '0.7rem', 
+            color: '#94a3b8',
+            background: 'rgba(59, 130, 246, 0.15)',
+            padding: '2px 6px',
+            borderRadius: '4px'
+          }}>
+            {weatherModel}
+          </span>
+          {/* Indicatore radar */}
+          <span style={{ 
+            fontSize: '0.7rem', 
+            color: radarState === 'on' ? '#22c55e' : '#64748b',
+            background: radarState === 'on' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(100, 116, 139, 0.15)',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <span style={{ 
+              width: '6px', 
+              height: '6px', 
+              borderRadius: '50%', 
+              background: radarState === 'on' ? '#22c55e' : '#64748b'
+            }} />
+            Radar: {radarState === 'on' ? 'ON' : 'OFF'}
+          </span>
+          <button onClick={exportCSV} disabled={loading}>📥 Esporta</button>
+        </div>
       </div>
       
       {/* Filtri colorati per i grafici */}
